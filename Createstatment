@@ -5,7 +5,7 @@ CREATE TABLE Storage
   PRIMARY KEY (IngredientName)
 );
 
-CREATE TABLE Cookie_
+CREATE TABLE Cookie
 (
   Name VARCHAR(30) NOT NULL,
   PRIMARY KEY (Name)
@@ -13,18 +13,18 @@ CREATE TABLE Cookie_
 
 CREATE TABLE Pallet
 (
-  Pallet_id INT NOT NULL,
+  Pallet_id INT NOT NULL AUTO_INCREMENT,
   productionDate DATE NOT NULL,
-  Blocked Boolean NOT NULL,
+  Blocked BOOLEAN NOT NULL,
   Location VARCHAR(20) NOT NULL,
   Name VARCHAR(30) NOT NULL,
   PRIMARY KEY (Pallet_id),
-  FOREIGN KEY (Name) REFERENCES Cookie_(Name)
+  FOREIGN KEY (Name) REFERENCES Cookie(Name)
 );
 
 CREATE TABLE Customer
 (
-  Customer_id INT NOT NULL,
+  Customer_id INT NOT NULL AUTO_INCREMENT,
   Name VARCHAR(30) NOT NULL,
   Address VARCHAR(50) NOT NULL,
   PRIMARY KEY (Customer_id)
@@ -32,7 +32,7 @@ CREATE TABLE Customer
 
 CREATE TABLE StorageUpdate
 (
-  id INT NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
   UpdateTime DATE NOT NULL,
   UpdateAmount INT NOT NULL,
   IngredientName VARCHAR(30) NOT NULL,
@@ -43,24 +43,24 @@ CREATE TABLE StorageUpdate
 CREATE TABLE IngredientInCookie
 (
   Quantity INT NOT NULL,
-  Unit INT NOT NULL,
+  Unit VARCHAR(10) NOT NULL, 
   IngredientName VARCHAR(30) NOT NULL,
   Name VARCHAR(30) NOT NULL,
   FOREIGN KEY (IngredientName) REFERENCES Storage(IngredientName),
-  FOREIGN KEY (Name) REFERENCES Cookie_(Name)
+  FOREIGN KEY (Name) REFERENCES Cookie(Name)
 );
 
 CREATE TABLE Order
 (
-  Order_id INT NOT NULL,
+  Order_id INT NOT NULL AUTO_INCREMENT,
   Customer_id INT NOT NULL,
   PRIMARY KEY (Order_id),
   FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id)
 );
 
-CREATE TABLE Pallet_Deliverd
+CREATE TABLE Pallet_Delivered
 (
-  Deliverd_date DATE NOT NULL,
+  Delivered_date DATE NOT NULL,
   Pallet_id INT NOT NULL,
   Order_id INT NOT NULL,
   FOREIGN KEY (Pallet_id) REFERENCES Pallet(Pallet_id),
@@ -72,6 +72,6 @@ CREATE TABLE OrderSpec
   Amount INT NOT NULL,
   Name VARCHAR(30) NOT NULL,
   Order_id INT NOT NULL,
-  FOREIGN KEY (Name) REFERENCES Cookie_(Name),
+  FOREIGN KEY (Name) REFERENCES Cookie(Name),
   FOREIGN KEY (Order_id) REFERENCES Order(Order_id)
 );
