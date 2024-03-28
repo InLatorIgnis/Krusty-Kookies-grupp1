@@ -1,0 +1,77 @@
+CREATE TABLE Storage
+(
+  IngredientName VARCHAR(30) NOT NULL,
+  StorageAmount INT NOT NULL,
+  PRIMARY KEY (IngredientName)
+);
+
+CREATE TABLE Cookie_
+(
+  Name VARCHAR(30) NOT NULL,
+  PRIMARY KEY (Name)
+);
+
+CREATE TABLE Pallet
+(
+  Pallet_id INT NOT NULL,
+  productionDate DATE NOT NULL,
+  Blocked Boolean NOT NULL,
+  Location VARCHAR(20) NOT NULL,
+  Name VARCHAR(30) NOT NULL,
+  PRIMARY KEY (Pallet_id),
+  FOREIGN KEY (Name) REFERENCES Cookie_(Name)
+);
+
+CREATE TABLE Customer
+(
+  Customer_id INT NOT NULL,
+  Name VARCHAR(30) NOT NULL,
+  Address VARCHAR(50) NOT NULL,
+  PRIMARY KEY (Customer_id)
+);
+
+CREATE TABLE StorageUpdate
+(
+  id INT NOT NULL,
+  UpdateTime DATE NOT NULL,
+  UpdateAmount INT NOT NULL,
+  IngredientName VARCHAR(30) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (IngredientName) REFERENCES Storage(IngredientName)
+);
+
+CREATE TABLE IngredientInCookie
+(
+  Quantity INT NOT NULL,
+  Unit INT NOT NULL,
+  IngredientName VARCHAR(30) NOT NULL,
+  Name VARCHAR(30) NOT NULL,
+  FOREIGN KEY (IngredientName) REFERENCES Storage(IngredientName),
+  FOREIGN KEY (Name) REFERENCES Cookie_(Name)
+);
+
+CREATE TABLE Order
+(
+  Order_id INT NOT NULL,
+  Customer_id INT NOT NULL,
+  PRIMARY KEY (Order_id),
+  FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id)
+);
+
+CREATE TABLE Pallet_Deliverd
+(
+  Deliverd_date DATE NOT NULL,
+  Pallet_id INT NOT NULL,
+  Order_id INT NOT NULL,
+  FOREIGN KEY (Pallet_id) REFERENCES Pallet(Pallet_id),
+  FOREIGN KEY (Order_id) REFERENCES Order(Order_id)
+);
+
+CREATE TABLE OrderSpec
+(
+  Amount INT NOT NULL,
+  Name VARCHAR(30) NOT NULL,
+  Order_id INT NOT NULL,
+  FOREIGN KEY (Name) REFERENCES Cookie_(Name),
+  FOREIGN KEY (Order_id) REFERENCES Order(Order_id)
+);

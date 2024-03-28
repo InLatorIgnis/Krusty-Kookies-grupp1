@@ -1,0 +1,57 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>110</x><y>230</y><w>210</w><h>50</h></coordinates><panel_attributes>Cookie
+--
+_name_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>370</x><y>100</y><w>130</w><h>80</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+IngredientInCookie
+--
+quantity
+unit</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>810</x><y>100</y><w>100</w><h>80</h></coordinates><panel_attributes>StorageUpdate
+--
+_id_
+updateAmount
+updateTime</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>600</x><y>100</y><w>110</w><h>80</h></coordinates><panel_attributes>Storage
+--
+_IngredientName_
+storageAmount
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>330</x><y>330</y><w>110</w><h>90</h></coordinates><panel_attributes>Pallet
+--
+_pallet_id_
+productionDate
+blocked
+location</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>750</x><y>350</y><w>100</w><h>50</h></coordinates><panel_attributes>Order
+--
+_order_id_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>960</x><y>330</y><w>100</w><h>80</h></coordinates><panel_attributes>Customer
+--
+_customer_id_
+name
+address</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>200</x><y>270</y><w>150</w><h>140</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n
+Put in </panel_attributes><additional_attributes>20;10;20;110;130;110</additional_attributes></element><element><id>Relation</id><coordinates><x>210</x><y>100</y><w>180</w><h>150</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n
+Contains </panel_attributes><additional_attributes>10;130;10;20;160;20</additional_attributes></element><element><id>Relation</id><coordinates><x>490</x><y>100</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1
+Stores </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>700</x><y>100</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n
+has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>840</x><y>360</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1
+ Requests </panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>490</x><y>280</y><w>100</w><h>60</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+orderSpec
+--
+amount</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>310</x><y>230</y><w>500</w><h>140</h></coordinates><panel_attributes>lt=-
+m1=1...*
+m2=0..*
+Orders</panel_attributes><additional_attributes>10;20;460;20;460;120</additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>360</y><w>100</w><h>60</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+palletDelivered
+--
+deliveredDate</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>640</x><y>370</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1...*
+m2=1
+ Has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>530</x><y>240</y><w>30</w><h>60</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>430</x><y>360</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=1
+ has 
+</panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element></diagram>
