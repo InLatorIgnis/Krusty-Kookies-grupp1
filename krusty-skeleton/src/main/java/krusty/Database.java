@@ -21,6 +21,7 @@ public class Database {
 
 	public void connect() {
 		// Connect to database here
+		System.out.println("tjena");
 	}
 
 	// TODO: Implement and change output in all methods below!
