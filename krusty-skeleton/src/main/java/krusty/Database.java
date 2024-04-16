@@ -13,11 +13,7 @@ import java.util.TreeMap;
 import static krusty.Jsonizer.toJson;
 
 public class Database {
-	
-	//lagt till själv!!!!!!!!
-	private Connection conn;
-	// !!!!!!!!
-	
+
 	/**
 	 * Modify it to fit your environment and then use this string when connecting to your database!
 	 */
@@ -26,6 +22,18 @@ public class Database {
 	// For use with MySQL or PostgreSQL
 	private static final String jdbcUsername = "hbg03";
 	private static final String jdbcPassword = "jav922za";
+	
+	//lagt till själv!!!!!!!!
+	private Connection conn;
+	// !!!!!!!!
+
+	/**
+     * Create the database object. Connection i performed later
+     */
+    public Database() {
+        conn = null;
+    }
+	
 
 	public void connect() {
 		// Connect to database here
