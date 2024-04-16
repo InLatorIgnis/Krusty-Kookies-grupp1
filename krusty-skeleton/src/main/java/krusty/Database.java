@@ -46,7 +46,36 @@ public class Database {
 		return "{\"pallets\":[]}";
 	}
 
-	public String reset(Request req, Response res) {
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	public String reset(Request req, Response res) throws SQLException {
+
+		//Connection connect = null;
+		String clearTables = "TRANCUTE TABLE Storage"
+		+ "TRANCUTE TABLE IngredientName"
+		+ "TRANCUTE TABLE Pallet_Delivered"
+		+ "TRANCUTE TABLE StorageAmount"
+		+ "TRANCUTE TABLE Cookie"
+		+ "TRANCUTE TABLE Pallet"
+		+ "TRANCUTE TABLE Customer"
+		+ "TRANCUTE TABLE StorageUpdate"
+		+ "TRANCUTE TABLE IngredientInCookie"
+		+ "TRANCUTE TABLE Order"
+		+ "TRANCUTE TABLE OrderSpec";
+
+		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
+		try(PreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
+		PreparedStatement resetAll = connect.prepareStatement(clearTables)) {
+
+		} catch(SQLException e) {
+			e.printStackTrace();
+
+			
+		}
 		return "{}";
 	}
 
