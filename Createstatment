@@ -1,17 +1,45 @@
-CREATE TABLE Storage
+-- SQL script to create the tables necessary for the procject in EDA216.
+-- MySQL version.
+--
+-- Creates the tables Storage, Cookie, Pallet, Customers, StorageUpdate, IngredientInCookie, Orders
+-- Pallet_Delivered,  and OrderSpec.
+-- populates them with (simulated) data.
+--
+-- We disable foreign key checks temporarily so we can delete the
+-- tables in arbitrary order, and so insertion is faster.
+
+set FOREIGN_KEY_CHECKS = 0;
+
+-- Drop the tables if they already exist.
+
+drop table if exists Storages;
+drop table if exists Cookies;
+drop table if exists Pallets;
+drop table if exists Customers;
+drop table if exists StorageUpdates;
+drop table if exists IngredientInCookies;
+drop table if exists Orders;
+drop table if exists Pallet_Delivered;
+drop table if exists OrderSpec;
+
+
+-- Create the tables. The 'check' constraints are not effective in MySQL. 
+
+CREATE TABLE Storages
 (
   IngredientName VARCHAR(30) NOT NULL,
   StorageAmount INT NOT NULL,
   PRIMARY KEY (IngredientName)
 );
 
-CREATE TABLE Cookie
+
+CREATE TABLE Cookies
 (
   Name VARCHAR(30) NOT NULL,
   PRIMARY KEY (Name)
 );
 
-CREATE TABLE Pallet
+CREATE TABLE Pallets
 (
   Pallet_id INT NOT NULL AUTO_INCREMENT,
   productionDate DATE NOT NULL,
@@ -22,7 +50,7 @@ CREATE TABLE Pallet
   FOREIGN KEY (Name) REFERENCES Cookie(Name)
 );
 
-CREATE TABLE Customer
+CREATE TABLE Customers
 (
   Customer_id INT NOT NULL AUTO_INCREMENT,
   Name VARCHAR(30) NOT NULL,
@@ -30,17 +58,17 @@ CREATE TABLE Customer
   PRIMARY KEY (Customer_id)
 );
 
-CREATE TABLE StorageUpdate
+CREATE TABLE StorageUpdates
 (
   id INT NOT NULL AUTO_INCREMENT,
   UpdateTime DATE NOT NULL,
   UpdateAmount INT NOT NULL,
   IngredientName VARCHAR(30) NOT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (IngredientName) REFERENCES Storage(IngredientName)
+  FOREIGN KEY (IngredientName) REFERENCES Storage(IngredientNames)
 );
 
-CREATE TABLE IngredientInCookie
+CREATE TABLE IngredientInCookies
 (
   Quantity INT NOT NULL,
   Unit VARCHAR(10) NOT NULL, 
@@ -50,12 +78,12 @@ CREATE TABLE IngredientInCookie
   FOREIGN KEY (Name) REFERENCES Cookie(Name)
 );
 
-CREATE TABLE Order
+CREATE TABLE Orders
 (
   Order_id INT NOT NULL AUTO_INCREMENT,
   Customer_id INT NOT NULL,
   PRIMARY KEY (Order_id),
-  FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id)
+  FOREIGN KEY (Customer_id) REFERENCES Customers(Customer_id)
 );
 
 CREATE TABLE Pallet_Delivered
@@ -64,7 +92,7 @@ CREATE TABLE Pallet_Delivered
   Pallet_id INT NOT NULL,
   Order_id INT NOT NULL,
   FOREIGN KEY (Pallet_id) REFERENCES Pallet(Pallet_id),
-  FOREIGN KEY (Order_id) REFERENCES Order(Order_id)
+  FOREIGN KEY (Order_id) REFERENCES Orders(Order_id)
 );
 
 CREATE TABLE OrderSpec
@@ -73,5 +101,93 @@ CREATE TABLE OrderSpec
   Name VARCHAR(30) NOT NULL,
   Order_id INT NOT NULL,
   FOREIGN KEY (Name) REFERENCES Cookie(Name),
-  FOREIGN KEY (Order_id) REFERENCES Order(Order_id)
+  FOREIGN KEY (Order_id) REFERENCES Orders(Order_id)
 );
+
+-- We will do a lot of inserts, so we start a transaction to make it faster.
+
+start transaction;
+
+-- Populate the  Customers table.
+
+INSERT INTO Customers (Name, Address) VALUES 
+('Bjudkakor AB', 'Ystad'),
+('Finkakor AB', 'Helsingborg'),
+('Gästkakor AB', 'Hässleholm'),
+('Kaffebröd AB', 'Landskrona'),
+('Kalaskakor AB', 'Trelleborg'),
+('Partykakor AB', 'Kristianstad'),
+('Skånekakor AB', 'Perstorp'),
+('Småbröd AB', 'Malmö');
+
+-- Populate the Cookies table.
+
+INSERT INTO Cookies (Name) VALUES
+('Almond delight'),
+('Amneris'),
+('Berliner'),
+('Nut cookie'),
+('Nut ring'),
+('Tango');
+
+
+-- Populate the IngredientInCookie table.
+
+-- Ingredients for Almond delight
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(400, 'g', 'Butter', 'Almond delight'),
+(279, 'g', 'Chopped almonds', 'Almond delight'),
+(10, 'g', 'Cinnamon', 'Almond delight'),
+(400, 'g', 'Flour', 'Almond delight'),
+(270, 'g', 'Sugar', 'Almond delight');
+
+-- Ingredients for Amneris
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(250, 'g', 'Butter', 'Amneris'),
+(250, 'g', 'Eggs', 'Amneris'),
+(750, 'g', 'Marzipan', 'Amneris'),
+(25, 'g', 'Potato starch', 'Amneris'),
+(25, 'g', 'Wheat flour', 'Amneris');
+
+-- Ingredients for Berliner
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(250, 'g', 'Butter', 'Berliner'),
+(50, 'g', 'Chocolate', 'Berliner'),
+(50, 'g', 'Eggs', 'Berliner'),
+(350, 'g', 'Flour', 'Berliner'),
+(100, 'g', 'Icing sugar', 'Berliner'),
+(5, 'g', 'Vanilla sugar', 'Berliner');
+
+-- Ingredients for Nut cookie
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(125, 'g', 'Bread crumbs', 'Nut cookie'),
+(50, 'g', 'Chocolate', 'Nut cookie'),
+(350, 'ml', 'Egg whites', 'Nut cookie'),
+(750, 'g', 'Fine-ground nuts', 'Nut cookie'),
+(625, 'g', 'Ground, roasted nuts', 'Nut cookie'),
+(375, 'g', 'Sugar', 'Nut cookie');
+
+-- Ingredients for Nut ring
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(450, 'g', 'Butter', 'Nut ring'),
+(450, 'g', 'Flour', 'Nut ring'),
+(190, 'g', 'Icing sugar', 'Nut ring'),
+(225, 'g', 'Roasted, chopped nuts', 'Nut ring');
+
+-- Ingredients for Tango
+INSERT INTO IngredientInCookies (Quantity, Unit, IngredientName, Name) VALUES
+(200, 'g', 'Butter', 'Tango'),
+(300, 'g', 'Flour', 'Tango'),
+(4, 'g', 'Sodium bicarbonate', 'Tango'),
+(250, 'g', 'Sugar', 'Tango'),
+(2, 'g', 'Vanilla', 'Tango');
+
+
+-- Commit the transaction.
+
+commit;
+
+-- And re-enable foreign key checks.
+
+set FOREIGN_KEY_CHECKS = 1;
+
