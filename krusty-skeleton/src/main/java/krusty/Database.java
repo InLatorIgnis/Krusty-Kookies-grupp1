@@ -3,6 +3,9 @@ package krusty;
 import spark.Request;
 import spark.Response;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,19 +13,44 @@ import java.util.TreeMap;
 import static krusty.Jsonizer.toJson;
 
 public class Database {
-	/**
-	 * Modify it to fit your environment and then use this string when connecting to your database!
-	 */
-	private static final String jdbcString = "jdbc:mysql://localhost/krusty";
-
-	// For use with MySQL or PostgreSQL
-	private static final String jdbcUsername = "<CHANGE ME>";
-	private static final String jdbcPassword = "<CHANGE ME>";
-
-	public void connect() {
-		// Connect to database here
-		System.out.println("tjena");
-	}
+	
+		private static final String jdbcString = "jdbc:mysql://puccini.cs.lth.se:3306/hbg03";
+		private static final String jdbcUsername = "hbg03";
+		private static final String jdbcPassword = "jav922za";
+	
+	
+		private Connection conn = null;
+	
+		public void connect() {
+			try {
+				// Load the JDBC driver
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				// Connect to the database
+				conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword);
+				System.out.println("Connected to the database successfully");
+				
+			} catch (ClassNotFoundException e) {
+				System.out.println("MySQL JDBC driver not found");
+				e.printStackTrace();
+			} catch (SQLException e) {
+				System.out.println("Connection failed");
+				e.printStackTrace();
+			}
+			// The connection is stored in the conn field and can be used later
+		}
+	
+		// Additional methods to use or close the connection
+		public void closeConnection() {
+			if (conn != null) {
+				try {
+					conn.close();
+					System.out.println("Connection closed successfully");
+				} catch (SQLException e) {
+					System.out.println("Failed to close the connection");
+					e.printStackTrace();
+				}
+			}
+		}
 
 	// TODO: Implement and change output in all methods below!
 
