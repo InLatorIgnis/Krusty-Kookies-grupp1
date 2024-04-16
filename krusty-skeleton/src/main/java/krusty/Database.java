@@ -3,6 +3,9 @@ package krusty;
 import spark.Request;
 import spark.Response;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,18 +13,28 @@ import java.util.TreeMap;
 import static krusty.Jsonizer.toJson;
 
 public class Database {
+	
+	//lagt till själv!!!!!!!!
+	private Connection conn;
+	// !!!!!!!!
+	
 	/**
 	 * Modify it to fit your environment and then use this string when connecting to your database!
 	 */
-	private static final String jdbcString = "jdbc:mysql://localhost/krusty";
+	private static final String jdbcString = "jdbc:mysql://puccini.cs.lth.se/hbg03";   //"jdbc:mysql://localhost/krusty";
 
 	// For use with MySQL or PostgreSQL
-	private static final String jdbcUsername = "<CHANGE ME>";
-	private static final String jdbcPassword = "<CHANGE ME>";
+	private static final String jdbcUsername = "hbg03";
+	private static final String jdbcPassword = "jav922za";
 
 	public void connect() {
 		// Connect to database here
-		System.out.println("tjena");
+		try {
+            conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword);
+        } catch (SQLException e) {
+            System.err.println(e);
+            e.printStackTrace();
+        }
 	}
 
 	// TODO: Implement and change output in all methods below!
