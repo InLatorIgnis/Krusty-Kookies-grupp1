@@ -5,11 +5,13 @@ import spark.Response;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static krusty.Jsonizer.anythingToJson;
 import static krusty.Jsonizer.toJson;
 
 public class Database {
@@ -56,6 +58,22 @@ public class Database {
 	}
 
 	public String getCookies(Request req, Response res) {
+
+		res.type("application/json");
+		var query = "SELECT Namn\n" + "FROM Cookie\n" + "ORDER BY Namn\n";
+
+		try (var ps = conn.prepareStatement(query)) {
+			var rs = ps.executeQuery();
+			//String result = JSONizer.toJSON(rs, "cookie");
+			String result = toJson(rs, "cookie");
+			res.status(200);
+			res.body(result);
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			res.status(500);
+		}
+
 		return "{\"cookies\":[]}";
 	}
 
@@ -89,8 +107,8 @@ public class Database {
 		+ "TRANCUTE TABLE OrderSpec";
 
 		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
-		try(PreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
-		PreparedStatement resetAll = connect.prepareStatement(clearTables)) {
+		try(Connection conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
+		PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 
 		} catch(SQLException e) {
 			e.printStackTrace();
