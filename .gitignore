@@ -37,3 +37,11 @@ replay_pid*
 # Built Visual Studio Code Extensions
 *.vsix
 .vscode/settings.json
+
+# Ignore gradle things
+krusty-skeleton/.gradle/6.2/executionHistory/executionHistory.bin
+
+krusty-skeleton/.gradle/6.2/executionHistory/executionHistory.lock
+krusty-skeleton/.gradle/6.2/fileHashes/fileHashes.bin
+krusty-skeleton/.gradle/6.2/fileHashes/fileHashes.lock
+krusty-skeleton/.gradle/buildOutputCleanup/buildOutputCleanup.lock
