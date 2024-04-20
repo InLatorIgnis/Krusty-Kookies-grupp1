@@ -64,8 +64,7 @@ public class Database {
 
 		try (var ps = conn.prepareStatement(query)) {
 			var rs = ps.executeQuery();
-			//String result = JSONizer.toJSON(rs, "cookie");
-			String result = toJson(rs, "cookie");
+			String result = toJson(rs, "cookies");
 			res.status(200);
 			res.body(result);
 			return result;
@@ -78,7 +77,20 @@ public class Database {
 	}
 
 	public String getRecipes(Request req, Response res) {
-		return "{}";
+		res.type("application/json");
+		var query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie\n" + "JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
+
+		try (var ps = conn.prepareStatement(query)) {
+			var rs = ps.executeQuery();
+			var result = toJson(rs, "recipes");
+			res.status(200);
+			res.body(result);
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			res.status(500);
+		}
+		return "{\"recipes\":[]}";
 	}
 
 	public String getPallets(Request req, Response res) {
@@ -107,14 +119,14 @@ public class Database {
 		+ "TRANCUTE TABLE OrderSpec";
 
 		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
-		try(Connection conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
+		/*try(CPreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
 		PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 
 		} catch(SQLException e) {
 			e.printStackTrace();
 
 			
-		}
+		}*/
 		return "{}";
 	}
 
