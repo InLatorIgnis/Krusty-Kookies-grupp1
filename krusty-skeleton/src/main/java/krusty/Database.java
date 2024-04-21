@@ -47,9 +47,7 @@ public class Database {
 	}
 
 	// TODO: Implement and change output in all methods below!
-
 	public String getCustomers(Request req, Response res) {
-		//req och res ska inte användas i denna endpoint
 		String selectCustomers = "select name, address from Customer";
 		try (
 			PreparedStatement ps = conn.prepareStatement(selectCustomers);
@@ -64,6 +62,19 @@ public class Database {
 	}
 
 	public String getRawMaterials(Request req, Response res) {
+		String selectRawMaterials = 
+			"SELECT s.IngredientName as name, s.StorageAmount as amount, i.Unit as unit " +
+			"FROM Storage s " +
+			"JOIN IngredientInCookie i ON s.IngredientName = i.IngredientName";
+		try (
+			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
+		) {
+			ResultSet resultSet = ps.executeQuery();
+			String json = Jsonizer.toJson(resultSet, "customers");
+			return json;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return "{}";
 	}
 
