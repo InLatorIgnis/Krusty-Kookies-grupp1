@@ -58,39 +58,31 @@ public class Database {
 	}
 
 	public String getCookies(Request req, Response res) {
-
-		res.type("application/json");
 		var query = "SELECT Namn\n" + "FROM Cookie\n" + "ORDER BY Namn\n";
 
 		try (var ps = conn.prepareStatement(query)) {
 			var rs = ps.executeQuery();
 			String result = toJson(rs, "cookies");
-			res.status(200);
-			res.body(result);
 			return result;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			res.status(500);
+			return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
 		}
 
-		return "{\"cookies\":[]}";
 	}
 
 	public String getRecipes(Request req, Response res) {
-		res.type("application/json");
-		var query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie\n" + "JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
+		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie\n" + "JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
 
 		try (var ps = conn.prepareStatement(query)) {
 			var rs = ps.executeQuery();
-			var result = toJson(rs, "recipes");
-			res.status(200);
-			res.body(result);
+			String result = toJson(rs, "recipes");
 			return result;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			res.status(500);
+			return "{\"recipes\":[],\"error\":\"Database error occurred.\"}";
 		}
-		return "{\"recipes\":[]}";
+		
 	}
 
 	public String getPallets(Request req, Response res) {
