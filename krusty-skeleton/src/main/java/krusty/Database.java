@@ -115,8 +115,7 @@ if (blockedParam != null) {
     values.add("FALSE"); // Add as string
 }
 
-try (Connection connection = conn;
-PreparedStatement stmt = connection.prepareStatement(sql)) {
+try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 // Set the values for the prepared statement
 for (int i = 0; i < values.size(); i++) {
    stmt.setString(i + 1, values.get(i));
