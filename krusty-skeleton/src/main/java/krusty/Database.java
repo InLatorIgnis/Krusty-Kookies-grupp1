@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.mysql.cj.PreparedQuery;
+import com.mysql.cj.jdbc.PreparedStatementWrapper;
+import com.mysql.cj.xdevapi.PreparableStatement;
+
 import java.util.ArrayList;
 import java.sql.ResultSet;
 
@@ -67,15 +71,43 @@ public class Database {
     }
 
     public String getCookies(Request req, Response res) {
-        return "{\"cookies\":[]}";
+        String sql = "SELECT cookie_name FROM cookies WHERE 1=1"; // Corrected column name to "name"
+        String nameParam = req.queryParams("cookie_name");
+    
+        if (nameParam != null && !nameParam.isEmpty()) {
+            sql += " AND name = ?";
+        }
+    
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+    
+            // If the "cookie_name" parameter is provided, set its value in the prepared statement
+            if (nameParam != null && !nameParam.isEmpty()) {
+                stmt.setString(1, nameParam);
+            }
+    
+            // Execute the query and handle the results
+            try (ResultSet rs = stmt.executeQuery()) {
+                // Process the ResultSet and format the result into JSON
+                String json = krusty.Jsonizer.toJson(rs, "cookie");
+                return json;
+                // Return the formatted result as the response
+            }
+        } catch (SQLException e) {
+            // Log error and return an error message or empty JSON
+            e.printStackTrace();
+            return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
+        }
     }
+    
+    
 
     public String getRecipes(Request req, Response res) {
         return "{}";
     }
 
     public String getPallets(Request req, Response res) {
-        // Initial SQL query, booleans are ENUMS for TINYs
+        // Initial SQL query,
         String sql = "SELECT id, IF(blocked_bool_attr, 'yes', 'no') AS blocked  FROM pallets WHERE 1=1"; // A valid yet simple start to allow for dynamic string building.
 
         // ArrayList to hold parameters for prepared statement
@@ -115,7 +147,8 @@ if (blockedParam != null) {
     values.add("FALSE"); // Add as string
 }
 
-try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+try (
+    PreparedStatement stmt = conn.prepareStatement(sql)) {
 // Set the values for the prepared statement
 for (int i = 0; i < values.size(); i++) {
    stmt.setString(i + 1, values.get(i));
@@ -142,30 +175,109 @@ try (ResultSet rs = stmt.executeQuery()) {
      * @throws SQLException
      */
 
-    public String reset(Request req, Response res) throws SQLException {
+     public String reset(Request req, Response res) throws SQLException {
 
-        String clearTables = "TRANCUTE TABLE Storage"
-                + "TRANCUTE TABLE IngredientName"
-                + "TRANCUTE TABLE Pallet_Delivered"
-                + "TRANCUTE TABLE StorageAmount"
-                + "TRANCUTE TABLE Cookie"
-                + "TRANCUTE TABLE Pallet"
-                + "TRANCUTE TABLE Customer"
-                + "TRANCUTE TABLE StorageUpdate"
-                + "TRANCUTE TABLE IngredientInCookie"
-                + "TRANCUTE TABLE Order"
-                + "TRANCUTE TABLE OrderSpec";
+        String clearTables = "TRUNCATE TABLE Storage; " +
+                "TRUNCATE TABLE IngredientName; " +
+                "TRUNCATE TABLE Pallet_Delivered; " +
+                "TRUNCATE TABLE StorageAmount; " +
+                "TRUNCATE TABLE Cookie; " +
+                "TRUNCATE TABLE Pallet; " +
+                "TRUNCATE TABLE Customer; " +
+                "TRUNCATE TABLE StorageUpdate; " +
+                "TRUNCATE TABLE IngredientInCookie; " +
+                "TRUNCATE TABLE Order; " +
+                "TRUNCATE TABLE OrderSpec;";
+    
+        String insertCustomers = "INSERT INTO customers (name, Address) VALUES " +
+                "('Bjudkakor AB', 'Ystad'), " +
+                "('Finkakor AB', 'Helsingborg'), " +
+                "('Gästkakor AB', 'Hässleholm'), " +
+                "('Kaffebröd AB', 'Landskrona'), " +
+                "('Kalaskakor AB', 'Trelleborg'), " +
+                "('Partykakor AB', 'Kristianstad'), " +
+                "('Skånekakor AB', 'Perstorp'), " +
+                "('Småbröd AB', 'Malmö');";
+    
+        String insertCookies = "INSERT INTO cookies (name) VALUES " +
+                "('Almond delight'), " +
+                "('Amneris'), " +
+                "('Berliner'), " +
+                "('Nut cookie'), " +
+                "('Nut ring'), " +
+                "('Tango');";
+    
+        String insertIngredients = "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES " +
+                "(400, 'g', 'Butter', 'Almond delight'), " +
+                "(279, 'g', 'Chopped almonds', 'Almond delight'), " +
+                "(10, 'g', 'Cinnamon', 'Almond delight'), " +
+                "(400, 'g', 'Flour', 'Almond delight'), " +
+                "(270, 'g', 'Sugar', 'Almond delight'); " +
+                
+                ""+
+                 "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+                "(250, 'g', 'Butter', 'Amneris'), "+
+                "(250, 'g', 'Eggs', 'Amneris'), "+
+                "(750, 'g', 'Marzipan', 'Amneris'), "+
+                "(25, 'g', 'Potato starch', 'Amneris'), "+
+                "(25, 'g', 'Wheat flour', 'Amneris'); "+
+                ""+
+                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+                "(250, 'g', 'Butter', 'Berliner'), "+
+                "(50, 'g', 'Chocolate', 'Berliner'), "+
+               " (50, 'g', 'Eggs', 'Berliner'), "+
+               " (350, 'g', 'Flour', 'Berliner'), "+
+                "(100, 'g', 'Icing sugar', 'Berliner'), "+
+                "(5, 'g', 'Vanilla sugar', 'Berliner'); "+
+                ""+
+                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+              "(125, 'g', 'Bread crumbs', 'Nut cookie'), "+
+               " (50, 'g', 'Chocolate', 'Nut cookie'), "+
+                "(350, 'ml', 'Egg whites', 'Nut cookie'), "+
+                "(750, 'g', 'Fine-ground nuts', 'Nut cookie'), "+
+                "(625, 'g', 'Ground, roasted nuts', 'Nut cookie'), "+
+                "(375, 'g', 'Sugar', 'Nut cookie'); "+
+                ""+
+              "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+               " (450, 'g', 'Butter', 'Nut ring'), "+
+                "(450, 'g', 'Flour', 'Nut ring'), "+
+                "(190, 'g', 'Icing sugar', 'Nut ring'), "+
+                "(225, 'g', 'Roasted, chopped nuts', 'Nut ring'); "+
+                ""+
 
-        // Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
+                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+                "(200, 'g', 'Butter', 'Tango'), "+
+                "(300, 'g', 'Flour', 'Tango'), "+
+                "(4, 'g', 'Sodium bicarbonate', 'Tango'), "+
+                "(250, 'g', 'Sugar', 'Tango'), "+
+                "(2, 'g', 'Vanilla', 'Tango'); "+
+                ""
+                ;
+
+                
+    
         try (Connection connection = conn;
-                PreparedStatement resetAll = connection.prepareStatement(clearTables)) {
-
+                Statement statement = connection.createStatement()) {
+    
+            // Clear tables
+            statement.executeUpdate(clearTables);
+    
+            // Insert customers
+            statement.executeUpdate(insertCustomers);
+    
+            // Insert cookies
+            statement.executeUpdate(insertCookies);
+    
+            // Insert ingredients
+            statement.executeUpdate(insertIngredients);
+    
         } catch (SQLException e) {
             e.printStackTrace();
-
         }
         return "{}";
     }
+    
+    
 
     // Todo by Martin
     public String createPallet(Request req, Response res) {
