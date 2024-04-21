@@ -5,6 +5,8 @@ import spark.Response;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
@@ -34,7 +36,6 @@ public class Database {
         conn = null;
     }
 	
-
 	public void connect() {
 		// Connect to database here
 		try {
@@ -48,6 +49,17 @@ public class Database {
 	// TODO: Implement and change output in all methods below!
 
 	public String getCustomers(Request req, Response res) {
+		//req och res ska inte användas i denna endpoint
+		String selectCustomers = "select name, address from Customer";
+		try (
+			PreparedStatement ps = conn.prepareStatement(selectCustomers);
+		) {
+			ResultSet resultSet = ps.executeQuery();
+			String json = Jsonizer.toJson(resultSet, "customers");
+			return json;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return "{}";
 	}
 
