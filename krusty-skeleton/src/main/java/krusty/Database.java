@@ -6,10 +6,13 @@ import spark.Response;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.mysql.cj.protocol.Resultset;
 
 import static krusty.Jsonizer.anythingToJson;
 import static krusty.Jsonizer.toJson;
@@ -58,13 +61,15 @@ public class Database {
 	}
 
 	public String getCookies(Request req, Response res) {
-		var query = "SELECT Namn\n" + "FROM Cookie\n" + "ORDER BY Namn\n";
+		String query = "SELECT Name\n" + "FROM Cookie\n" + "ORDER BY Name";
 
-		try (var ps = conn.prepareStatement(query)) {
-			var rs = ps.executeQuery();
-			String result = toJson(rs, "cookies");
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = Jsonizer.toJson(rs, "cookies");
 			return result;
-		} catch (SQLException e) {
+		} 
+
+		catch (SQLException e) {
 			e.printStackTrace();
 			return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
 		}
@@ -72,13 +77,15 @@ public class Database {
 	}
 
 	public String getRecipes(Request req, Response res) {
-		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie\n" + "JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
+		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
 
-		try (var ps = conn.prepareStatement(query)) {
-			var rs = ps.executeQuery();
-			String result = toJson(rs, "recipes");
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = Jsonizer.toJson(rs, "recipes");
 			return result;
-		} catch (SQLException e) {
+		} 
+
+		catch (SQLException e) {
 			e.printStackTrace();
 			return "{\"recipes\":[],\"error\":\"Database error occurred.\"}";
 		}
@@ -111,15 +118,15 @@ public class Database {
 		+ "TRANCUTE TABLE OrderSpec";
 
 		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
-		/*try(CPreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
+		/*try(PreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
 		PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 
 		} catch(SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace(); 
 
 			
 		}*/
-		return "{}";
+		return "{}"; 
 	}
 
 	public String createPallet(Request req, Response res) {
