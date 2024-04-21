@@ -115,32 +115,19 @@ if (blockedParam != null) {
     values.add("FALSE"); // Add as string
 }
 
-        try (Connection connection = conn;
-                PreparedStatement stmt = connection.prepareStatement(sql)) {
-            // Set the values for the prepared statement
-            for (int i = 0; i < values.size(); i++) {
-                stmt.setString(i + 1, values.get(i));
-            }
+try (Connection connection = conn;
+PreparedStatement stmt = connection.prepareStatement(sql)) {
+// Set the values for the prepared statement
+for (int i = 0; i < values.size(); i++) {
+   stmt.setString(i + 1, values.get(i));
+}
 
-            // Execute the query and handle the results
-            try (ResultSet rs = stmt.executeQuery()) {
-                // Initialize JSON result string
-                StringBuilder result = new StringBuilder("{\"pallets\":[");
-                boolean first = true;
-                while (rs.next()) {
-                    if (!first) {
-                        result.append(",");
-                    } else {
-                        first = false;
-                    }
-                    result.append(String.format("{\"id\": \"%s\", \"blocked\": \"%s\"}",
-                            rs.getString("id"), rs.getString("blocked")));
-                }
-                result.append("]}");
-
-                // Return the JSON result
-                return result.toString();
-            }
+// Execute the query and handle the results
+try (ResultSet rs = stmt.executeQuery()) {
+   // Convert ResultSet to JSON object string using JSONizer
+   String json = krusty.Jsonizer.toJson(rs, "pallets");
+   return json;
+}
 
         } catch (SQLException e) {
             // Log error and return an error message or empty JSON
