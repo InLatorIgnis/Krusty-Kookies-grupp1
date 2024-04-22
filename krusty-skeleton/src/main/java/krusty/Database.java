@@ -62,53 +62,72 @@ public class Database {
 
     // TODO: Implement and change output in all methods below!
 
-    public String getCustomers(Request req, Response res) {
-        return "{}";
-    }
+	public String getCustomers(Request req, Response res) {
+		String selectCustomers = "select name, address from Customer";
+		try (
+			PreparedStatement ps = conn.prepareStatement(selectCustomers);
+		) {
+			ResultSet resultSet = ps.executeQuery();
+			String json = Jsonizer.toJson(resultSet, "customers");
+			return json;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "{}";
+	}
 
-    public String getRawMaterials(Request req, Response res) {
-        return "{}";
-    }
+	public String getRawMaterials(Request req, Response res) {
+		String selectRawMaterials = 
+			"SELECT s.IngredientName as name, s.StorageAmount as amount, i.Unit as unit " +
+			"FROM Storage s " +
+			"JOIN IngredientInCookie i ON s.IngredientName = i.IngredientName";
+		try (
+			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
+		) {
+			ResultSet resultSet = ps.executeQuery();
+			String json = Jsonizer.toJson(resultSet, "customers");
+			return json;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "{}";
+	}
 
     public String getCookies(Request req, Response res) {
-        String sql = "SELECT cookie_name FROM cookies WHERE 1=1"; // Corrected column name to "name"
-        String nameParam = req.queryParams("cookie_name");
-    
-        if (nameParam != null && !nameParam.isEmpty()) {
-            sql += " AND name = ?";
-        }
-    
-        try {
-            PreparedStatement stmt = conn.prepareStatement(sql);
-    
-            // If the "cookie_name" parameter is provided, set its value in the prepared statement
-            if (nameParam != null && !nameParam.isEmpty()) {
-                stmt.setString(1, nameParam);
-            }
-    
-            // Execute the query and handle the results
-            try (ResultSet rs = stmt.executeQuery()) {
-                // Process the ResultSet and format the result into JSON
-                String json = krusty.Jsonizer.toJson(rs, "cookie");
-                return json;
-                // Return the formatted result as the response
-            }
-        } catch (SQLException e) {
-            // Log error and return an error message or empty JSON
-            e.printStackTrace();
-            return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
-        }
-    }
-    
-    
+		String query = "SELECT name\n" + "FROM cookies\n" + "ORDER BY name";
 
-    public String getRecipes(Request req, Response res) {
-        return "{}";
-    }
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = Jsonizer.toJson(rs, "cookies");
+			return result;
+		} 
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
+		}
+
+	}
+
+	public String getRecipes(Request req, Response res) {
+		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie JOIN cookies\n" + "orders BY cookies, ingredientInCookies";
+
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = Jsonizer.toJson(rs, "recipes");
+			return result;
+		} 
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "{\"recipes\":[],\"error\":\"Database error occurred.\"}";
+		}
+		
+	}
 
     public String getPallets(Request req, Response res) {
         // Initial SQL query,
-        String sql = "SELECT id, IF(blocked_bool_attr, 'yes', 'no') AS blocked  FROM pallets WHERE 1=1"; // A valid yet simple start to allow for dynamic string building.
+        String sql = "SELECT id, IF(blocked, 'TRUE', 'FALSE') AS blocked\n"+ "FROM pallets\n"+ "WHERE 1=1"; // A valid yet simple start to allow for dynamic string building.
 
         // ArrayList to hold parameters for prepared statement
         ArrayList<String> values = new ArrayList<>();
@@ -138,13 +157,13 @@ if (cookieParam != null) {
 
 String blockedParam = req.queryParams("blocked");
 if (blockedParam != null) {
-    String blockedValue = blockedParam.equalsIgnoreCase("yes") ? "TRUE" : "FALSE";
+    String blockedValue = blockedParam.equalsIgnoreCase("TRUE") ? "yes" : "no";
     sql += " AND blocked_bool_attr = ?";
     values.add(blockedValue);
 } else {
     // If 'blocked' parameter is not provided, assume it's not blocked
     sql += " AND blocked_bool_attr = ?";
-    values.add("FALSE"); // Add as string
+    values.add("no"); // Add as string
 }
 
 try (
@@ -177,105 +196,109 @@ try (ResultSet rs = stmt.executeQuery()) {
 
      public String reset(Request req, Response res) throws SQLException {
 
-        String clearTables = "TRUNCATE TABLE Storage; " +
-                "TRUNCATE TABLE IngredientName; " +
-                "TRUNCATE TABLE Pallet_Delivered; " +
-                "TRUNCATE TABLE StorageAmount; " +
-                "TRUNCATE TABLE Cookie; " +
-                "TRUNCATE TABLE Pallet; " +
-                "TRUNCATE TABLE Customer; " +
-                "TRUNCATE TABLE StorageUpdate; " +
-                "TRUNCATE TABLE IngredientInCookie; " +
-                "TRUNCATE TABLE Order; " +
-                "TRUNCATE TABLE OrderSpec;";
-    
-        String insertCustomers = "INSERT INTO customers (name, Address) VALUES " +
-                "('Bjudkakor AB', 'Ystad'), " +
-                "('Finkakor AB', 'Helsingborg'), " +
-                "('Gästkakor AB', 'Hässleholm'), " +
-                "('Kaffebröd AB', 'Landskrona'), " +
-                "('Kalaskakor AB', 'Trelleborg'), " +
-                "('Partykakor AB', 'Kristianstad'), " +
-                "('Skånekakor AB', 'Perstorp'), " +
-                "('Småbröd AB', 'Malmö');";
-    
-        String insertCookies = "INSERT INTO cookies (name) VALUES " +
-                "('Almond delight'), " +
-                "('Amneris'), " +
-                "('Berliner'), " +
-                "('Nut cookie'), " +
-                "('Nut ring'), " +
-                "('Tango');";
-    
-        String insertIngredients = "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES " +
-                "(400, 'g', 'Butter', 'Almond delight'), " +
-                "(279, 'g', 'Chopped almonds', 'Almond delight'), " +
-                "(10, 'g', 'Cinnamon', 'Almond delight'), " +
-                "(400, 'g', 'Flour', 'Almond delight'), " +
-                "(270, 'g', 'Sugar', 'Almond delight'); " +
-                
-                ""+
-                 "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
-                "(250, 'g', 'Butter', 'Amneris'), "+
-                "(250, 'g', 'Eggs', 'Amneris'), "+
-                "(750, 'g', 'Marzipan', 'Amneris'), "+
-                "(25, 'g', 'Potato starch', 'Amneris'), "+
-                "(25, 'g', 'Wheat flour', 'Amneris'); "+
-                ""+
-                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
-                "(250, 'g', 'Butter', 'Berliner'), "+
-                "(50, 'g', 'Chocolate', 'Berliner'), "+
-               " (50, 'g', 'Eggs', 'Berliner'), "+
-               " (350, 'g', 'Flour', 'Berliner'), "+
-                "(100, 'g', 'Icing sugar', 'Berliner'), "+
-                "(5, 'g', 'Vanilla sugar', 'Berliner'); "+
-                ""+
-                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
-              "(125, 'g', 'Bread crumbs', 'Nut cookie'), "+
-               " (50, 'g', 'Chocolate', 'Nut cookie'), "+
-                "(350, 'ml', 'Egg whites', 'Nut cookie'), "+
-                "(750, 'g', 'Fine-ground nuts', 'Nut cookie'), "+
-                "(625, 'g', 'Ground, roasted nuts', 'Nut cookie'), "+
-                "(375, 'g', 'Sugar', 'Nut cookie'); "+
-                ""+
-              "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
-               " (450, 'g', 'Butter', 'Nut ring'), "+
-                "(450, 'g', 'Flour', 'Nut ring'), "+
-                "(190, 'g', 'Icing sugar', 'Nut ring'), "+
-                "(225, 'g', 'Roasted, chopped nuts', 'Nut ring'); "+
-                ""+
-
-                "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
-                "(200, 'g', 'Butter', 'Tango'), "+
-                "(300, 'g', 'Flour', 'Tango'), "+
-                "(4, 'g', 'Sodium bicarbonate', 'Tango'), "+
-                "(250, 'g', 'Sugar', 'Tango'), "+
-                "(2, 'g', 'Vanilla', 'Tango'); "+
-                ""
-                ;
-
-                
-    
-        try (Connection connection = conn;
-                Statement statement = connection.createStatement()) {
-    
-            // Clear tables
-            statement.executeUpdate(clearTables);
-    
-            // Insert customers
-            statement.executeUpdate(insertCustomers);
-    
-            // Insert cookies
-            statement.executeUpdate(insertCookies);
-    
-            // Insert ingredients
-            statement.executeUpdate(insertIngredients);
-    
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "{}";
-    }
+					String[] tableNames = new String[]{"Storages", "ingredientName", "pallet_Delivered", "storageAmount", "cookies", "pallets", "customers", "storageUpdates", "ingredientInCookies", "orders", "orderSpec"};
+					
+					
+					String clearTables = "TRUNCATE TABLE Storages; " +
+					"TRUNCATE TABLE ingredientName; " +
+					"TRUNCATE TABLE pallet_Delivered; " +
+					"TRUNCATE TABLE storageAmount; " +
+					"TRUNCATE TABLE cookies; " +
+					"TRUNCATE TABLE pallets; " +
+					"TRUNCATE TABLE customers; " +
+					"TRUNCATE TABLE storageUpdates; " +
+					"TRUNCATE TABLE ingredientInCookies; " +
+					"TRUNCATE TABLE orders; " +
+					"TRUNCATE TABLE orderSpec;";
+		
+			String insertCustomers = "INSERT INTO customers (name, Address) VALUES " +
+					"('Bjudkakor AB', 'Ystad'), " +
+					"('Finkakor AB', 'Helsingborg'), " +
+					"('Gästkakor AB', 'Hässleholm'), " +
+					"('Kaffebröd AB', 'Landskrona'), " +
+					"('Kalaskakor AB', 'Trelleborg'), " +
+					"('Partykakor AB', 'Kristianstad'), " +
+					"('Skånekakor AB', 'Perstorp'), " +
+					"('Småbröd AB', 'Malmö');";
+		
+			String insertCookies = "INSERT INTO cookies (name) VALUES " +
+					"('Almond delight'), " +
+					"('Amneris'), " +
+					"('Berliner'), " +
+					"('Nut cookie'), " +
+					"('Nut ring'), " +
+					"('Tango');";
+		
+			String insertIngredients = "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES " +
+					"(400, 'g', 'Butter', 'Almond delight'), " +
+					"(279, 'g', 'Chopped almonds', 'Almond delight'), " +
+					"(10, 'g', 'Cinnamon', 'Almond delight'), " +
+					"(400, 'g', 'Flour', 'Almond delight'), " +
+					"(270, 'g', 'Sugar', 'Almond delight'); " +
+					
+					""+
+					 "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+					"(250, 'g', 'Butter', 'Amneris'), "+
+					"(250, 'g', 'Eggs', 'Amneris'), "+
+					"(750, 'g', 'Marzipan', 'Amneris'), "+
+					"(25, 'g', 'Potato starch', 'Amneris'), "+
+					"(25, 'g', 'Wheat flour', 'Amneris'); "+
+					""+
+					"INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+					"(250, 'g', 'Butter', 'Berliner'), "+
+					"(50, 'g', 'Chocolate', 'Berliner'), "+
+				   " (50, 'g', 'Eggs', 'Berliner'), "+
+				   " (350, 'g', 'Flour', 'Berliner'), "+
+					"(100, 'g', 'Icing sugar', 'Berliner'), "+
+					"(5, 'g', 'Vanilla sugar', 'Berliner'); "+
+					""+
+					"INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+				  "(125, 'g', 'Bread crumbs', 'Nut cookie'), "+
+				   " (50, 'g', 'Chocolate', 'Nut cookie'), "+
+					"(350, 'ml', 'Egg whites', 'Nut cookie'), "+
+					"(750, 'g', 'Fine-ground nuts', 'Nut cookie'), "+
+					"(625, 'g', 'Ground, roasted nuts', 'Nut cookie'), "+
+					"(375, 'g', 'Sugar', 'Nut cookie'); "+
+					""+
+				  "INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+				   " (450, 'g', 'Butter', 'Nut ring'), "+
+					"(450, 'g', 'Flour', 'Nut ring'), "+
+					"(190, 'g', 'Icing sugar', 'Nut ring'), "+
+					"(225, 'g', 'Roasted, chopped nuts', 'Nut ring'); "+
+					""+
+	
+					"INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES"+
+					"(200, 'g', 'Butter', 'Tango'), "+
+					"(300, 'g', 'Flour', 'Tango'), "+
+					"(4, 'g', 'Sodium bicarbonate', 'Tango'), "+
+					"(250, 'g', 'Sugar', 'Tango'), "+
+					"(2, 'g', 'Vanilla', 'Tango'); "+
+					""
+					;
+				
+					Connection connection = null;
+					try {
+						connection = conn; // Ensure conn is appropriately managed and closed elsewhere
+						connection.setAutoCommit(false);
+						try (Statement statement = connection.createStatement()) {
+							for (String tableName : tableNames) {
+								statement.addBatch("TRUNCATE TABLE " + tableName + ";");
+							}
+							statement.addBatch(insertCookies);
+							statement.addBatch(insertCustomers);
+							statement.addBatch(insertIngredients);
+							statement.executeBatch();
+							connection.commit();
+						} catch (SQLException e) {
+							connection.rollback();
+							throw e; // Rethrow exception after rollback
+						}
+					} finally {
+						if (connection != null) connection.close(); // Make sure to close the connection if conn is not managed outside
+					}
+					return "{}";
+				}
+				
     
     
 
