@@ -115,7 +115,7 @@ public class Database {
 
     public String getPallets(Request req, Response res) {
         // Initial SQL query
-        String sql = "SELECT Pallet_id, IF(blocked, 'TRUE', 'FALSE') AS blocked, location, name " +
+        String sql = "SELECT Pallet_id, IF(blocked, 'Yes', 'No') AS blocked, location, name " +
                      "FROM pallets WHERE 1=1";
     
         // ArrayList to hold parameters for prepared statement
@@ -145,7 +145,7 @@ public class Database {
         // Handling 'blocked' parameter (filter by blocked status)
         String blockedParam = req.queryParams("blocked");
         if (blockedParam != null) {
-            String blockedValue = blockedParam.equalsIgnoreCase("TRUE") ? "1" : "0";
+            String blockedValue = blockedParam.equalsIgnoreCase("yes") ? "1" : "0";
             sql += " AND blocked = ?";
             values.add(blockedValue);
         }
@@ -261,81 +261,98 @@ public class Database {
 					;
 				
 					Connection connection = null;
-					try {
-						connection = conn; // Ensure conn is appropriately managed and closed elsewhere
-						connection.setAutoCommit(false);
-						try (Statement statement = connection.createStatement()) {
-							for (String tableName : tableNames) {
-								statement.addBatch("TRUNCATE TABLE " + tableName + ";");
-							}
-							statement.addBatch(insertCookies);
-							statement.addBatch(insertCustomers);
-							statement.addBatch(insertIngredients);
-							statement.executeBatch();
-							connection.commit();
-						} catch (SQLException e) {
-							connection.rollback();
-							throw e; // Rethrow exception after rollback
-						}
-					} finally {
-						if (connection != null) connection.close(); // Make sure to close the connection if conn is not managed outside
-					}
-					return "{}";
-				}
+    try {
+        connection = conn; // Ensure conn is appropriately managed and closed elsewhere
+        connection.setAutoCommit(false);
+        try (Statement statement = connection.createStatement()) {
+            for (String tableName : tableNames) {
+                statement.addBatch("TRUNCATE TABLE " + tableName + ";");
+            }
+            statement.addBatch(insertCookies);
+            statement.addBatch(insertCustomers);
+            statement.addBatch(insertIngredients);
+            statement.executeBatch();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e; // Rethrow exception after rollback
+        }
+    } finally {
+        if (connection != null) connection.close(); // Make sure to close the connection if conn is not managed outside
+    }
+    return "{}";
+}
 				
     
     
 
     // Todo by Martin
-    public String createPallet(Request req, Response res) {
-        // Get the cookie name from the query parameter
-        String cookieName = req.queryParams("cookie");
-        if (cookieName == null) {
-            res.status(400); // Bad Request
-            return "{\"status\":\"error\"}";
-        }
-
-        // Database connection and SQL queries
-        String checkCookieSql = "SELECT COUNT(*) FROM Cookie WHERE Name = ?";
-        String insertPalletSql = "INSERT INTO Pallets (productionDate, Blocked, Location, Name) VALUES (NOW(), false, 'Factory 1', ?)";
-
-        try (Connection connection = conn;
-                PreparedStatement checkCookieStmt = connection.prepareStatement(checkCookieSql);
-                PreparedStatement insertPalletStmt = connection.prepareStatement(insertPalletSql,
-                        Statement.RETURN_GENERATED_KEYS)) {
-
-            // Check if the cookie exists
-            checkCookieStmt.setString(1, cookieName);
-            ResultSet cookieResult = checkCookieStmt.executeQuery();
-            if (cookieResult.next() && cookieResult.getInt(1) > 0) {
-                // Cookie exists, create the pallet
-                insertPalletStmt.setString(1, cookieName);
-                int affectedRows = insertPalletStmt.executeUpdate();
-                if (affectedRows > 0) {
-                    // Pallet created successfully, retrieve and return new pallet ID
-                    try (ResultSet generatedKeys = insertPalletStmt.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            long palletId = generatedKeys.getLong(1);
-                            res.status(201); // Created
-                            return String.format("{\"status\":\"ok\",\"id\":%d}", palletId);
-                        } else {
-                            res.status(500); // Internal Server Error
-                            return "{\"status\":\"error\"}";
-                        }
-                    }
-                } else {
-                    res.status(500); // Internal Server Error
-                    return "{\"status\":\"error\"}";
-                }
-            } else {
-                // Cookie does not exist
-                res.status(404); // Not Found
-                return "{\"status\":\"unknown cookie\"}";
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            res.status(500); // Internal Server Error
-            return "{\"status\":\"error\"}";
-        }
+   public String createPallet(Request req, Response res) {
+    String cookieName = req.queryParams("cookie");
+    if (cookieName == null) {
+        res.status(400); // Bad Request
+        return "{\"status\":\"error\",\"message\":\"Missing 'cookie' parameter\"}";
     }
+
+    String checkCookieSql = "SELECT COUNT(*) FROM Cookie WHERE Name = ?";
+    String insertPalletSql = "INSERT INTO Pallets (productionDate, Blocked, Location, Name) VALUES (NOW(), false, 'Factory 1', ?)";
+    String selectIngredientsSql = "SELECT ingredient_name, quantity FROM ingredientInCookies WHERE cookie_name = ?";
+    String updateStoragesSql = "UPDATE Storages SET quantity = quantity - ? WHERE ingredient_name = ?";
+
+    try (Connection connection = conn;
+         PreparedStatement checkCookieStmt = connection.prepareStatement(checkCookieSql);
+         PreparedStatement insertPalletStmt = connection.prepareStatement(insertPalletSql, Statement.RETURN_GENERATED_KEYS);
+         PreparedStatement selectIngredientsStmt = connection.prepareStatement(selectIngredientsSql);
+         PreparedStatement updateStoragesStmt = connection.prepareStatement(updateStoragesSql)) {
+
+        connection.setAutoCommit(false); // Start transaction
+
+        // Check if the specified cookie exists
+        checkCookieStmt.setString(1, cookieName);
+        ResultSet cookieResult = checkCookieStmt.executeQuery();
+        if (cookieResult.next() && cookieResult.getInt(1) > 0) {
+            // Get ingredients for the specified cookie
+            selectIngredientsStmt.setString(1, cookieName);
+            ResultSet ingredientsResult = selectIngredientsStmt.executeQuery();
+
+            // Create the pallet
+            insertPalletStmt.setString(1, cookieName);
+            int affectedRows = insertPalletStmt.executeUpdate();
+            if (affectedRows > 0) {
+                // Retrieve and process generated pallet ID
+                try (ResultSet generatedKeys = insertPalletStmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        long palletId = generatedKeys.getLong(1);
+
+                        // Deduct ingredients from storages
+                        while (ingredientsResult.next()) {
+                            String ingredientName = ingredientsResult.getString("ingredient_name");
+                            int quantity = ingredientsResult.getInt("quantity");
+                            updateStoragesStmt.setInt(1, quantity);
+                            updateStoragesStmt.setString(2, ingredientName);
+                            updateStoragesStmt.addBatch();
+                        }
+
+                        // Execute batch update for storages
+                        updateStoragesStmt.executeBatch();
+
+                        connection.commit(); // Commit transaction
+                        res.status(201); // Created
+                        return String.format("{\"status\":\"ok\",\"id\":%d}", palletId);
+                    }
+                }
+            }
+        }
+        // If execution reaches here, handle errors
+        connection.rollback(); // Rollback transaction
+        res.status(500); // Internal Server Error
+        return "{\"status\":\"error\",\"message\":\"Failed to create pallet\"}";
+    } catch (SQLException e) {
+        // Log the exception
+        e.printStackTrace();
+        res.status(500); // Internal Server Error
+        return "{\"status\":\"error\",\"message\":\"An unexpected error occurred\"}";
+    }
+}
+
 }
