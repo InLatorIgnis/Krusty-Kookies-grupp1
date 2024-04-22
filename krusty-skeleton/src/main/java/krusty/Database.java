@@ -63,7 +63,7 @@ public class Database {
     // TODO: Implement and change output in all methods below!
 
 	public String getCustomers(Request req, Response res) {
-		String selectCustomers = "select name, address from Customer";
+		String selectCustomers = "select name, address"+ "FROM customers";
 		try (
 			PreparedStatement ps = conn.prepareStatement(selectCustomers);
 		) {
@@ -78,9 +78,7 @@ public class Database {
 
 	public String getRawMaterials(Request req, Response res) {
 		String selectRawMaterials = 
-			"SELECT s.IngredientName as name, s.StorageAmount as amount, i.Unit as unit " +
-			"FROM Storage s " +
-			"JOIN IngredientInCookie i ON s.IngredientName = i.IngredientName";
+        "SELECT *\n" + "FROM ingredientInCookies\n" + "Order by cookie_name;";
 		try (
 			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
 		) {
@@ -126,66 +124,62 @@ public class Database {
 	}
 
     public String getPallets(Request req, Response res) {
-        // Initial SQL query,
-        String sql = "SELECT id, IF(blocked, 'TRUE', 'FALSE') AS blocked\n"+ "FROM pallets\n"+ "WHERE 1=1"; // A valid yet simple start to allow for dynamic string building.
-
+        // Initial SQL query
+        String sql = "SELECT Pallet_id, IF(blocked, 'TRUE', 'FALSE') AS blocked, location, name " +
+                     "FROM pallets WHERE 1=1";
+    
         // ArrayList to hold parameters for prepared statement
         ArrayList<String> values = new ArrayList<>();
-
-        // Handling the 'from' query parameter 
+    
+        // Handling the 'from' query parameter (date produced on or after)
         String fromParam = req.queryParams("from");
         if (fromParam != null) {
-            sql += " AND someColumn >= ?";
+            sql += " AND productionDate >= ?";
             values.add(fromParam);
         }
-
+    
         // Handling the 'to' query parameter (date produced on or before)
-String toParam = req.queryParams("to");
-if (toParam != null) {
-    sql += " AND production_date <= ?";
-    values.add(toParam);
-}
-
-// Handling the 'cookie' query parameter
-String cookieParam = req.queryParams("cookie");
-if (cookieParam != null) {
-    sql += " AND cookie = ?";
-    values.add(cookieParam);
-}
-
-// Handling 'blocked' parameter
-
-String blockedParam = req.queryParams("blocked");
-if (blockedParam != null) {
-    String blockedValue = blockedParam.equalsIgnoreCase("TRUE") ? "yes" : "no";
-    sql += " AND blocked_bool_attr = ?";
-    values.add(blockedValue);
-} else {
-    // If 'blocked' parameter is not provided, assume it's not blocked
-    sql += " AND blocked_bool_attr = ?";
-    values.add("no"); // Add as string
-}
-
-try (
-    PreparedStatement stmt = conn.prepareStatement(sql)) {
-// Set the values for the prepared statement
-for (int i = 0; i < values.size(); i++) {
-   stmt.setString(i + 1, values.get(i));
-}
-
-// Execute the query and handle the results
-try (ResultSet rs = stmt.executeQuery()) {
-   // Convert ResultSet to JSON object string using JSONizer
-   String json = krusty.Jsonizer.toJson(rs, "pallets");
-   return json;
-}
-
+        String toParam = req.queryParams("to");
+        if (toParam != null) {
+            sql += " AND productionDate <= ?";
+            values.add(toParam);
+        }
+    
+        // Handling the 'cookie' query parameter (filter by cookie name)
+        String cookieParam = req.queryParams("cookie");
+        if (cookieParam != null) {
+            sql += " AND name = ?";
+            values.add(cookieParam);
+        }
+    
+        // Handling 'blocked' parameter (filter by blocked status)
+        String blockedParam = req.queryParams("blocked");
+        if (blockedParam != null) {
+            String blockedValue = blockedParam.equalsIgnoreCase("TRUE") ? "1" : "0";
+            sql += " AND blocked = ?";
+            values.add(blockedValue);
+        }
+    
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Set the values for the prepared statement
+            for (int i = 0; i < values.size(); i++) {
+                stmt.setString(i + 1, values.get(i));
+            }
+    
+            // Execute the query and handle the results
+            try (ResultSet rs = stmt.executeQuery()) {
+                // Convert ResultSet to JSON
+                String json = Jsonizer.toJson(rs, "pallets");
+                return json;
+            }
+    
         } catch (SQLException e) {
             // Log error and return an error message or empty JSON
             e.printStackTrace();
             return "{\"pallets\":[],\"error\":\"Database error occurred.\"}";
         }
     }
+    
 
     /**
      * @param req
