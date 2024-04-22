@@ -1,25 +1,15 @@
 package krusty;
 
-import spark.Request;
-import spark.Response;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.mysql.cj.PreparedQuery;
-import com.mysql.cj.jdbc.PreparedStatementWrapper;
-import com.mysql.cj.xdevapi.PreparableStatement;
-
-import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
-import static krusty.Jsonizer.toJson;
+import spark.Request;
+import spark.Response;
 
 public class Database {
 
@@ -78,7 +68,7 @@ public class Database {
 
 	public String getRawMaterials(Request req, Response res) {
 		String selectRawMaterials = 
-        "SELECT *\n" + "FROM ingredientInCookies\n" + "Order by cookie_name;";
+        "SELECT *\n" + "FROM storages\n" + "Order by ingredient_name;";
 		try (
 			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
 		) {
