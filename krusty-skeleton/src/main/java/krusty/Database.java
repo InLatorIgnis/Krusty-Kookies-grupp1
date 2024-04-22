@@ -77,8 +77,7 @@ public class Database {
 	}
 
 	public String getRecipes(Request req, Response res) {
-		String query = "SELECT Quantity, Unit, ingredient_name, cookie_name\n" + "FROM cookies JOIN ingredientInCookies USING (cookie_name) JOIN storages USING(ingredient_name)\n"
-		 + "ORDER BY cookie_name, ingredient_name";
+		String query = "SELECT *\n" + "FROM ingredientInCookies\n" + "ORDER BY cookie_name";
 
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
