@@ -61,11 +61,11 @@ public class Database {
 	}
 
 	public String getCookies(Request req, Response res) {
-		String query = "SELECT Name\n" + "FROM Cookie\n" + "ORDER BY Name";
+		String query = "SELECT name\n" + "FROM cookies\n" + "ORDER BY name";
 
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
-			String result = Jsonizer.toJson(rs, "cookies");
+			String result = krusty.Jsonizer.toJson(rs, "cookies");
 			return result;
 		} 
 
@@ -77,11 +77,12 @@ public class Database {
 	}
 
 	public String getRecipes(Request req, Response res) {
-		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie JOIN Cookie\n" + "ORDER BY Cookie, IngredientInCookie";
+		String query = "SELECT Quantity, Unit, ingredient_name, cookie_name\n" + "FROM cookies JOIN ingredientInCookies USING (cookie_name) JOIN storages USING(ingredient_name)\n"
+		 + "ORDER BY cookie_name, ingredient_name";
 
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
-			String result = Jsonizer.toJson(rs, "recipes");
+			String result = krusty.Jsonizer.toJson(rs, "recipes");
 			return result;
 		} 
 
