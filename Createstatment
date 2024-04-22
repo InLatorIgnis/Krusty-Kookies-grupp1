@@ -11,16 +11,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Drop the tables if they already exist.
-DROP TABLE IF EXISTS Pallet_Delivered;
-DROP TABLE IF EXISTS OrderSpec;
-DROP TABLE IF EXISTS Orders;
-DROP TABLE IF EXISTS IngredientInCookies;
-DROP TABLE IF EXISTS StorageUpdates;
-DROP TABLE IF EXISTS Customers;
-DROP TABLE IF EXISTS Pallets;
-DROP TABLE IF EXISTS Cookies;
-DROP TABLE IF EXISTS Storages;
-
 DROP TABLE IF EXISTS pallet_Delivered;
 DROP TABLE IF EXISTS orderSpec;
 DROP TABLE IF EXISTS orders;
@@ -36,6 +26,7 @@ DROP TABLE IF EXISTS storages;
 CREATE TABLE storages (
   ingredient_name VARCHAR(30) NOT NULL,
   storage_amount INT NOT NULL,
+  storage_unit VARCHAR(10) NOT NULL,
   PRIMARY KEY (ingredient_name)
 );
 
@@ -64,10 +55,10 @@ CREATE TABLE customers (
 CREATE TABLE storageUpdates (
   id INT NOT NULL AUTO_INCREMENT,
   updateTime DATE NOT NULL,
-  UpdateAmount INT NOT NULL,
+  updateAmount INT NOT NULL,
   ingredient_name VARCHAR(30) NOT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (ingredient_name) REFERENCES storages(ingredient_name)
+  FOREIGN KEY (ingredient_name) REFERENCES storages(ingredient_name) ON DELETE CASCADE
 );
 
 CREATE TABLE ingredientInCookies (
@@ -129,10 +120,36 @@ INSERT INTO cookies (name) VALUES
 ('Tango');
 
 
+-- Populate the storages table
+-- Insert 'Egg whites' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Egg whites', 450, 'ml');
+
+-- Insert 'Butter' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Butter', 450, 'g');
+
+-- Insert 'Flour' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Flour', 450, 'g');
+
+-- Insert 'Ground, roasted nuts' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Ground, roasted nuts', 450, 'g');
+
+-- Insert 'Icing sugar' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Icing sugar', 450, 'g');
+
+-- Insert 'Roasted, chopped nuts' into storages
+INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
+VALUES ('Roasted, chopped nuts', 450, 'g');
+
+
 -- Populate the IngredientInCookie table.
 
 -- Ingredients for Almond delight
-INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_namename) VALUES
+INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES
 (400, 'g', 'Butter', 'Almond delight'),
 (279, 'g', 'Chopped almonds', 'Almond delight'),
 (10, 'g', 'Cinnamon', 'Almond delight'),
