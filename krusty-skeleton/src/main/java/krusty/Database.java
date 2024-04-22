@@ -63,7 +63,7 @@ public class Database {
     // TODO: Implement and change output in all methods below!
 
 	public String getCustomers(Request req, Response res) {
-		String selectCustomers = "select name, address"+ "FROM customers";
+		String selectCustomers = "select name, address\n"+ "FROM customers;";
 		try (
 			PreparedStatement ps = conn.prepareStatement(selectCustomers);
 		) {
@@ -108,7 +108,7 @@ public class Database {
 	}
 
 	public String getRecipes(Request req, Response res) {
-		String query = "SELECT Name, IngredientName, Unit, Quantity\n" + "FROM IngredientInCookie JOIN cookies\n" + "orders BY cookies, ingredientInCookies";
+		String query =  "SELECT *\n" + "FROM ingredientInCookies\n" + "Order by cookie_name;";
 
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
