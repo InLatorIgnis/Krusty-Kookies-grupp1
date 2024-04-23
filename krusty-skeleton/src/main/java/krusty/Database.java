@@ -159,13 +159,14 @@ public class Database {
 			conn.commit();
 
 		} catch(SQLException e) {
-			e.printStackTrace();
-
 			conn.rollback();
+			e.printStackTrace();
 			return { 
 				"status": "error" 
 			  };
 			  
+		} finally {
+			conn.setAutoCommit(true);
 		}
 		return { 
 			"status": "ok" 
