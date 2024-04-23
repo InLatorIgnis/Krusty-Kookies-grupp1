@@ -99,21 +99,49 @@ public class Database {
 	public String reset(Request req, Response res) throws SQLException {
 
 		//Connection connect = null;
-		String clearTables = "TRANCUTE TABLE Storage"
-		+ "TRANCUTE TABLE IngredientName"
-		+ "TRANCUTE TABLE Pallet_Delivered"
-		+ "TRANCUTE TABLE StorageAmount"
-		+ "TRANCUTE TABLE Cookie"
-		+ "TRANCUTE TABLE Pallet"
-		+ "TRANCUTE TABLE Customer"
-		+ "TRANCUTE TABLE StorageUpdate"
-		+ "TRANCUTE TABLE IngredientInCookie"
-		+ "TRANCUTE TABLE Order"
-		+ "TRANCUTE TABLE OrderSpec";
+		String clearTables = "TRUNCATE TABLE Storage"
+		+ "TRUNCATE TABLE IngredientName"
+		+ "TRUNCATE TABLE Pallet_Delivered"
+		+ "TRUNCATE TABLE StorageAmount"
+		+ "TRUNCATE TABLE Cookie"
+		+ "TRUNCATE TABLE Pallet"
+		+ "TRUNCATE TABLE Customer"
+		+ "TRUNCATE TABLE StorageUpdate"
+		+ "TRUNCATE TABLE IngredientInCookie"
+		+ "TRUNCATE TABLE Order"
+		+ "TRUNCATE TABLE OrderSpec";
 
-		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
-		try(PreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
-		PreparedStatement resetAll = connect.prepareStatement(clearTables)) {
+		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
+			ResultSet rs = resetAll.executeQuery(clearTables);
+			
+
+		} catch(SQLException e) {
+			e.printStackTrace();
+
+			
+		}
+		return "{}";
+	}
+
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private String defaultValues(Request req, Response res) throws SQLException {
+
+		//Connection connect = null;
+
+
+		String defaultValuesForCustomer = "INSERT INTO IngredientName VALUES (?,?)"
+		String[] customer = "Bjudkakor AB, Ystad", "Finkakor AB, Helsingborg", "GästKakor AB, Hässleholm",
+		"Kaffebröd AB, Landskrona", "Kalaskakor AB, Trelleborg", "Partykakor AB, Kristianstad", "Skånekakor AB, Perstorp",
+		 "Småbröd AB, Malmö";
+
+		asdasd
+		try(PreparedStatement resetAll = conn.prepareStatement(backToDefaultValues)) {
+			executeQuery(backToDefaultValues);
 
 		} catch(SQLException e) {
 			e.printStackTrace();
