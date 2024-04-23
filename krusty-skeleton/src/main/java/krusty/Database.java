@@ -113,6 +113,7 @@ public class Database {
 		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 			ResultSet rs = resetAll.executeQuery(clearTables);
 			defaultValuesCustomer(req, res);
+			defaultValuesCookie(req, res);
 
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -132,17 +133,7 @@ public class Database {
 	 */
 	private String defaultValuesCustomer(Request req, Response res) throws SQLException {
 
-		 String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
-		 String defaultValuesForOrderSpec = "";
-		 String defaultValuesForOrder = "";
-		 String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
-		 String defaultValuesForStorageUpdate = "";
-		 String defaultValuesForPallet = "";
-		 String defaultValuesForCookie = "INSERT INTO Cookie VALUES (?)";
-		 String defaultValuesForStorageAmount = "";
-		 String defaultValuesForPallet_Delivered = "";
-		 String defaultValuesForIngredientName = "";
-
+		 String defaultValuesForCustomer = "INSERT INTO Customer (Name, Address ) VALUES (?,?)";
 
 		 Map<String, String> customer = new HashMap<>();
 		 customer.put("Bjudkakor AB", "Ystad");
@@ -154,22 +145,69 @@ public class Database {
 		 customer.put("Skånekakor AB", "Perstorp");
 		 customer.put("Småbröd AB", "Malmö");
 
-		 String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
-
-
 		
-		try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
-			ps.executeQuery(backToDefaultValues);
+		try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCustomer)) {
+			conn.setAutoCommit(false);
+
+			for(Map.Entry<String, String> customers : customer.entrySet()) {
+				ps.setString(1, customers.getKey());
+				ps.setString(2, customers.getValue());
+				ps.executeUpdate();
+
+			}
+
+			conn.commit();
 
 		} catch(SQLException e) {
 			e.printStackTrace();
 
-			
+			conn.rollback();
+			return { 
+				"status": "error" 
+			  };
+			  
 		}
 		return { 
 			"status": "ok" 
 		  };
 	}
+
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private String defaultValuesCookie(Request req, Response res) throws SQLException {
+
+		 //String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
+		 //String defaultValuesForOrderSpec = "";
+		 // String defaultValuesForOrder = "";
+		 //String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
+		 //String defaultValuesForStorageUpdate = "";
+		 //String defaultValuesForPallet = "";
+		 String defaultValuesForCookie = "INSERT INTO Cookie (Name) VALUES (?)";
+		 //String defaultValuesForStorageAmount = "";
+		 //String defaultValuesForPallet_Delivered = "";
+		 //String defaultValuesForIngredientName = "";
+
+
+		String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
+
+
+	   
+	   try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
+		   ps.executeQuery(backToDefaultValues);
+
+	   } catch(SQLException e) {
+		   e.printStackTrace();
+
+		   
+	   }
+	   return { 
+		   "status": "ok" 
+		 };
+   }
 
 	public String createPallet(Request req, Response res) {
 		return "{}";
