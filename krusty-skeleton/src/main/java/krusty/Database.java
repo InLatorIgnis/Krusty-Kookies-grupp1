@@ -98,30 +98,117 @@ public class Database {
 	 */
 	public String reset(Request req, Response res) throws SQLException {
 
-		//Connection connect = null;
-		String clearTables = "TRANCUTE TABLE Storage"
-		+ "TRANCUTE TABLE IngredientName"
-		+ "TRANCUTE TABLE Pallet_Delivered"
-		+ "TRANCUTE TABLE StorageAmount"
-		+ "TRANCUTE TABLE Cookie"
-		+ "TRANCUTE TABLE Pallet"
-		+ "TRANCUTE TABLE Customer"
-		+ "TRANCUTE TABLE StorageUpdate"
-		+ "TRANCUTE TABLE IngredientInCookie"
-		+ "TRANCUTE TABLE Order"
-		+ "TRANCUTE TABLE OrderSpec";
+		String clearTables = "TRUNCATE TABLE Storage"
+		+ "TRUNCATE TABLE IngredientName"
+		+ "TRUNCATE TABLE Pallet_Delivered"
+		+ "TRUNCATE TABLE StorageAmount"
+		+ "TRUNCATE TABLE Cookie"
+		+ "TRUNCATE TABLE Pallet"
+		+ "TRUNCATE TABLE Customer"
+		+ "TRUNCATE TABLE StorageUpdate"
+		+ "TRUNCATE TABLE IngredientInCookie"
+		+ "TRUNCATE TABLE Order"
+		+ "TRUNCATE TABLE OrderSpec";
 
-		//Hade PreparedStatement resetAll = connect.prepareStatement(...) innan
-		try(PreparedStatement conn = DriverManager.getConnection(jdbcString, jdbcUsername, jdbcPassword); 
-		PreparedStatement resetAll = connect.prepareStatement(clearTables)) {
+		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
+			ResultSet rs = resetAll.executeQuery(clearTables);
+			defaultValuesCustomer(req, res);
+			defaultValuesCookie(req, res);
 
 		} catch(SQLException e) {
 			e.printStackTrace();
 
 			
 		}
-		return "{}";
+		return { 
+			"status": "ok" 
+		  };
 	}
+
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private String defaultValuesCustomer(Request req, Response res) throws SQLException {
+
+		 String defaultValuesForCustomer = "INSERT INTO Customer (Name, Address ) VALUES (?,?)";
+
+		 Map<String, String> customer = new HashMap<>();
+		 customer.put("Bjudkakor AB", "Ystad");
+		 customer.put("Finkakor AB", "Helsingborg");
+		 customer.put("GästKakor AB", "Hässleholm");
+		 customer.put("Kaffebröd AB", "Landskrona");
+		 customer.put("Kalaskakor AB", "Trelleborg");
+		 customer.put("Partykakor AB", "Kristianstad");
+		 customer.put("Skånekakor AB", "Perstorp");
+		 customer.put("Småbröd AB", "Malmö");
+
+		
+		try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCustomer)) {
+			conn.setAutoCommit(false);
+
+			for(Map.Entry<String, String> customers : customer.entrySet()) {
+				ps.setString(1, customers.getKey());
+				ps.setString(2, customers.getValue());
+				ps.executeUpdate();
+
+			}
+
+			conn.commit();
+
+		} catch(SQLException e) {
+			conn.rollback();
+			e.printStackTrace();
+			return { 
+				"status": "error" 
+			  };
+			  
+		} finally {
+			conn.setAutoCommit(true);
+		}
+		return { 
+			"status": "ok" 
+		  };
+	}
+
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private String defaultValuesCookie(Request req, Response res) throws SQLException {
+
+		 //String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
+		 //String defaultValuesForOrderSpec = "";
+		 // String defaultValuesForOrder = "";
+		 //String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
+		 //String defaultValuesForStorageUpdate = "";
+		 //String defaultValuesForPallet = "";
+		 String defaultValuesForCookie = "INSERT INTO Cookie (Name) VALUES (?)";
+		 //String defaultValuesForStorageAmount = "";
+		 //String defaultValuesForPallet_Delivered = "";
+		 //String defaultValuesForIngredientName = "";
+
+
+		String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
+
+
+	   
+	   try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
+		   ps.executeQuery(backToDefaultValues);
+
+	   } catch(SQLException e) {
+		   e.printStackTrace();
+
+		   
+	   }
+	   return { 
+		   "status": "ok" 
+		 };
+   }
 
 	public String createPallet(Request req, Response res) {
 		return "{}";
