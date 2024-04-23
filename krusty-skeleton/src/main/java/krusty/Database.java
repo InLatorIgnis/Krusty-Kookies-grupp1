@@ -98,7 +98,6 @@ public class Database {
 	 */
 	public String reset(Request req, Response res) throws SQLException {
 
-		//Connection connect = null;
 		String clearTables = "TRUNCATE TABLE Storage"
 		+ "TRUNCATE TABLE IngredientName"
 		+ "TRUNCATE TABLE Pallet_Delivered"
@@ -113,7 +112,7 @@ public class Database {
 
 		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 			ResultSet rs = resetAll.executeQuery(clearTables);
-			
+			defaultValuesCustomer(req, res);
 
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -131,12 +130,9 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private String defaultValues(Request req, Response res) throws SQLException {
+	private String defaultValuesCustomer(Request req, Response res) throws SQLException {
 
-		//Connection connect = null;
-
-
-		 String defaultValuesForCustomer = "INSERT INTO IngredientName VALUES (?,?)";
+		 String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
 		 String defaultValuesForOrderSpec = "";
 		 String defaultValuesForOrder = "";
 		 String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
@@ -162,8 +158,8 @@ public class Database {
 
 
 		
-		try(PreparedStatement resetAll = conn.prepareStatement(backToDefaultValues)) {
-			executeQuery(backToDefaultValues);
+		try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
+			ps.executeQuery(backToDefaultValues);
 
 		} catch(SQLException e) {
 			e.printStackTrace();
