@@ -120,7 +120,9 @@ public class Database {
 
 			
 		}
-		return "{}";
+		return { 
+			"status": "ok" 
+		  };
 	}
 
 	/**
@@ -134,12 +136,32 @@ public class Database {
 		//Connection connect = null;
 
 
-		String defaultValuesForCustomer = "INSERT INTO IngredientName VALUES (?,?)"
-		String[] customer = "Bjudkakor AB, Ystad", "Finkakor AB, Helsingborg", "GästKakor AB, Hässleholm",
-		"Kaffebröd AB, Landskrona", "Kalaskakor AB, Trelleborg", "Partykakor AB, Kristianstad", "Skånekakor AB, Perstorp",
-		 "Småbröd AB, Malmö";
+		 String defaultValuesForCustomer = "INSERT INTO IngredientName VALUES (?,?)";
+		 String defaultValuesForOrderSpec = "";
+		 String defaultValuesForOrder = "";
+		 String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
+		 String defaultValuesForStorageUpdate = "";
+		 String defaultValuesForPallet = "";
+		 String defaultValuesForCookie = "INSERT INTO Cookie VALUES (?)";
+		 String defaultValuesForStorageAmount = "";
+		 String defaultValuesForPallet_Delivered = "";
+		 String defaultValuesForIngredientName = "";
 
-		asdasd
+
+		 Map<String, String> customer = new HashMap<>();
+		 customer.put("Bjudkakor AB", "Ystad");
+		 customer.put("Finkakor AB", "Helsingborg");
+		 customer.put("GästKakor AB", "Hässleholm");
+		 customer.put("Kaffebröd AB", "Landskrona");
+		 customer.put("Kalaskakor AB", "Trelleborg");
+		 customer.put("Partykakor AB", "Kristianstad");
+		 customer.put("Skånekakor AB", "Perstorp");
+		 customer.put("Småbröd AB", "Malmö");
+
+		 String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
+
+
+		
 		try(PreparedStatement resetAll = conn.prepareStatement(backToDefaultValues)) {
 			executeQuery(backToDefaultValues);
 
@@ -148,7 +170,9 @@ public class Database {
 
 			
 		}
-		return "{}";
+		return { 
+			"status": "ok" 
+		  };
 	}
 
 	public String createPallet(Request req, Response res) {
