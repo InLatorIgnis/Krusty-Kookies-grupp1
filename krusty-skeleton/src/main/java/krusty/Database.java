@@ -195,7 +195,7 @@ public class Database {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		try {
-			File file = new File("krusty-skeleton/src/test/resources/initial-data.sql");
+			File file = new File("krusty-skeleton/src/main/resources/initial-data.sql");
 
 			// Create a Scanner to read from the file
 			Scanner scanner = new Scanner(file);
@@ -231,7 +231,6 @@ public class Database {
 						statement.addBatch(sqlStatement + ";");
 						System.out.println(sqlStatement);
 					}
-					System.out.println(sqlStatement);
 				}
 			
 				statement.addBatch(enableForeignKeyChecks);
