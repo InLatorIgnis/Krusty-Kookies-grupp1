@@ -308,13 +308,13 @@ public class Database {
 		String selectIngredientsSql = "SELECT ingredient_name, quantity FROM ingredientInCookies WHERE cookie_name = ?";
 		String updateStoragesSql = "UPDATE storages SET quantity = quantity - ? WHERE ingredient_name = ?";
 	
-		try (Connection connection = conn;
-			 PreparedStatement checkCookieStmt = connection.prepareStatement(checkCookieSql);
-			 PreparedStatement insertPalletStmt = connection.prepareStatement(insertPalletSql, Statement.RETURN_GENERATED_KEYS);
-			 PreparedStatement selectIngredientsStmt = connection.prepareStatement(selectIngredientsSql);
-			 PreparedStatement updateStoragesStmt = connection.prepareStatement(updateStoragesSql)) {
+		try (
+			 PreparedStatement checkCookieStmt = conn.prepareStatement(checkCookieSql);
+			 PreparedStatement insertPalletStmt = conn.prepareStatement(insertPalletSql, Statement.RETURN_GENERATED_KEYS);
+			 PreparedStatement selectIngredientsStmt = conn.prepareStatement(selectIngredientsSql);
+			 PreparedStatement updateStoragesStmt = conn.prepareStatement(updateStoragesSql)) {
 	
-			connection.setAutoCommit(false); // Start transaction
+				conn.setAutoCommit(false); // Start transaction
 	
 			// Check if the specified cookie exists
 			checkCookieStmt.setString(1, cookieName);
@@ -346,7 +346,7 @@ public class Database {
 									// Execute batch update for storages
 									updateStoragesStmt.executeBatch();
 	
-									connection.commit(); // Commit transaction
+									conn.commit(); // Commit transaction
 									res.status(201); // Created
 									return String.format("{\"status\":\"ok\",\"id\":%d}", palletId);
 								}
@@ -356,7 +356,7 @@ public class Database {
 				}
 			}
 			// If execution reaches here, handle errors
-			connection.rollback(); // Rollback transaction
+			conn.rollback(); // Rollback transaction
 			res.status(500); // Internal Server Error
 			return "{\"status\":\"error\",\"message\":\"Failed to create pallet\"}";
 		} catch (SQLException e) {
