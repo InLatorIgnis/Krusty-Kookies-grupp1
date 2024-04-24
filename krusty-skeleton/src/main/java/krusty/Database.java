@@ -79,11 +79,29 @@ public class Database {
 	}
 
 	public String getCookies(Request req, Response res) {
-		return "{\"cookies\":[]}";
+		String query = "SELECT name\n" + "FROM cookies\n" + "ORDER BY name";
+
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = krusty.Jsonizer.toJson(rs, "cookies");
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
+		}
 	}
 
 	public String getRecipes(Request req, Response res) {
-		return "{}";
+		String query = "SELECT *\n" + "FROM ingredientInCookies\n" + "ORDER BY cookie_name";
+		
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			String result = krusty.Jsonizer.toJson(rs, "recipes");
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "{\"recipes\":[],\"error\":\"Database error occurred\"}";
+		}
 	}
 
 	public String getPallets(Request req, Response res) {
