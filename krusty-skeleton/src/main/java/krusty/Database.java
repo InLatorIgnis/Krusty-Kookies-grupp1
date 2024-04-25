@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -155,7 +156,7 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private static String getDefaultValuesCustomer(Request req, Response res) throws SQLException {
+	private String getDefaultValuesCustomer(Request req, Response res) throws SQLException {
 
 		 String defaultValuesForCustomer = "INSERT INTO Customer (Name, Address) VALUES (?,?)";
 
@@ -199,7 +200,7 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private static String getDefaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
+	private String getDefaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
 
 		String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie(Quantity, Unit, IngredientName, Name) VALUES (?,?,?,?)";
 
@@ -265,11 +266,11 @@ public class Database {
                     int quantity = unitQuantityEntry.getKey();
                     String unit = unitQuantityEntry.getValue();
 
-                    stmt.setInt(1, quantity);
-                    stmt.setString(2, unit);
-                    stmt.setString(3, ingredientName);
-                    stmt.setString(4, recipeName);
-                    stmt.executeUpdate();
+                    ps.setInt(1, quantity);
+                    ps.setString(2, unit);
+                    ps.setString(3, ingredientName);
+                    ps.setString(4, recipeName);
+                    ps.executeUpdate();
                 }
             }
         }
@@ -293,16 +294,16 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private static String getDefaultValuesCookie(Request req, Response res) throws SQLException {
+	private String getDefaultValuesCookie(Request req, Response res) throws SQLException {
 
 		
 		 String defaultValuesForCookie = "INSERT INTO Cookie (Name) VALUES (?)";
 
-		String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
+		String[] cookie = {"Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango"};
 
 
 	   
-	     try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
+	     try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCookie)) {
 		 conn.setAutoCommit(false);
 
 			for(String c : cookie) {
@@ -319,7 +320,7 @@ public class Database {
 	   } finally {
 		conn.setAutoCommit(true);
 	   }
-	   return "{\"status\": \"ok\"}"
+	   return "{\"status\": \"ok\"}";
    }
 
    /**
@@ -328,14 +329,14 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private static String getDefaultValuesStorage(Request req, Response res) throws SQLException {
+	private String getDefaultValuesStorage(Request req, Response res) throws SQLException {
 
 		String defaultValuesForStorage = "INSERT INTO Storage (IngredientName, StorageAmount) VALUES (?,?)";
 
-		String[] ingredients = ["Bread crumbs", "Butter", "Chocolate", "Chopped almonds", "Cinnamon",
+		String[] ingredients = {"Bread crumbs", "Butter", "Chocolate", "Chopped almonds", "Cinnamon",
 		   "Egg whites", "Eggs", "Fine-ground nuts", "Flour", "Ground, roasted nuts", "Icing sugar",
 		   "Marzipan", "Potato starch", "Roasted, chopped nuts", "Sodium bicarbonate", "Sugar",
-		   "Vanilla sugar", "Vanilla", "Wheat flour"];
+		   "Vanilla sugar", "Vanilla", "Wheat flour"};
 
 		   int amountInStock = 500000;
 
