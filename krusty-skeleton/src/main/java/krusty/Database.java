@@ -129,14 +129,22 @@ public class Database {
 		+ "TRUNCATE TABLE OrderSpec";
 
 		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
+			conn.setAutoCommit(false);
 			ResultSet rs = resetAll.executeQuery(clearTables);
 			defaultValuesCustomer(req, res);
 			defaultValuesCookie(req, res);
 
-		} catch(SQLException e) {
-			e.printStackTrace();
+			conn.commit
 
-			
+		} catch(SQLException e) {
+			conn.rollback();
+			e.printStackTrace();
+			return { 
+				"status": "error" 
+			  };
+			  
+		} finally {
+			conn.setAutoCommit(true);
 		}
 		return { 
 			"status": "ok" 
@@ -197,6 +205,54 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
+	private String defaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
+
+		String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
+
+		Map<String, String> customer = new HashMap<>();
+		customer.put("Bjudkakor AB", "Ystad");
+		customer.put("Finkakor AB", "Helsingborg");
+		customer.put("GästKakor AB", "Hässleholm");
+		customer.put("Kaffebröd AB", "Landskrona");
+		customer.put("Kalaskakor AB", "Trelleborg");
+		customer.put("Partykakor AB", "Kristianstad");
+		customer.put("Skånekakor AB", "Perstorp");
+		customer.put("Småbröd AB", "Malmö");
+
+	   
+	   try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCustomer)) {
+		   conn.setAutoCommit(false);
+
+		   for(Map.Entry<String, String> customers : customer.entrySet()) {
+			   ps.setString(1, customers.getKey());
+			   ps.setString(2, customers.getValue());
+			   ps.executeUpdate();
+
+		   }
+
+		   conn.commit();
+
+	   } catch(SQLException e) {
+		   conn.rollback();
+		   e.printStackTrace();
+		   return { 
+			   "status": "error" 
+			 };
+			 
+	   } finally {
+		   conn.setAutoCommit(true);
+	   }
+	   return { 
+		   "status": "ok" 
+		 };
+   }
+
+	/**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
 	private String defaultValuesCookie(Request req, Response res) throws SQLException {
 
 		 //String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
@@ -216,12 +272,23 @@ public class Database {
 
 	   
 	   try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
-		   ps.executeQuery(backToDefaultValues);
+		conn.setAutoCommit(false);
 
-	   } catch(SQLException e) {
-		   e.printStackTrace();
-
+			for(String c : cookie) {
+				ps.setString(1, c);
+				ps.executeUpdate();
+			}
 		   
+			conn.commit();
+	   } catch(SQLException e) {
+			conn.rollback();
+		    e.printStackTrace();
+			return {
+				"status" : "error"
+			};
+		   
+	   } finally {
+		conn.setAutoCommit(true);
 	   }
 	   return { 
 		   "status": "ok" 
