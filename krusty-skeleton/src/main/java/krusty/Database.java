@@ -208,19 +208,8 @@ public class Database {
 	private String defaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
 
 		String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
-
-		Map<String, String> customer = new HashMap<>();
-		customer.put("Bjudkakor AB", "Ystad");
-		customer.put("Finkakor AB", "Helsingborg");
-		customer.put("GästKakor AB", "Hässleholm");
-		customer.put("Kaffebröd AB", "Landskrona");
-		customer.put("Kalaskakor AB", "Trelleborg");
-		customer.put("Partykakor AB", "Kristianstad");
-		customer.put("Skånekakor AB", "Perstorp");
-		customer.put("Småbröd AB", "Malmö");
-
 	   
-	   try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCustomer)) {
+	   try(PreparedStatement ps = conn.prepareStatement(defaultValuesForIngredientInCookie)) {
 		   conn.setAutoCommit(false);
 
 		   for(Map.Entry<String, String> customers : customer.entrySet()) {
