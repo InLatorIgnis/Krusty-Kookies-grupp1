@@ -130,25 +130,23 @@ public class Database {
 
 		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 			conn.setAutoCommit(false);
-			ResultSet rs = resetAll.executeQuery(clearTables);
-			defaultValuesCustomer(req, res);
-			defaultValuesCookie(req, res);
+			resetAll.executeQuery(clearTables);
+			getDefaultValuesCookie(req, res);
+			getDefaultValuesCustomer(req, res);
+			getDefaultValuesIngredientInCookie(req, res);
+			getDefaultValuesStorage(req, res);
 
-			conn.commit
+			conn.commit();
 
 		} catch(SQLException e) {
 			conn.rollback();
 			e.printStackTrace();
-			return { 
-				"status": "error" 
-			  };
+			return "{\"status\": \"error\"}";
 			  
 		} finally {
 			conn.setAutoCommit(true);
 		}
-		return { 
-			"status": "ok" 
-		  };
+		return "{\"status\": \"ok\"}";
 	}
 
 	/**
@@ -157,9 +155,9 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private String defaultValuesCustomer(Request req, Response res) throws SQLException {
+	private static String getDefaultValuesCustomer(Request req, Response res) throws SQLException {
 
-		 String defaultValuesForCustomer = "INSERT INTO Customer (Name, Address ) VALUES (?,?)";
+		 String defaultValuesForCustomer = "INSERT INTO Customer (Name, Address) VALUES (?,?)";
 
 		 Map<String, String> customer = new HashMap<>();
 		 customer.put("Bjudkakor AB", "Ystad");
@@ -187,16 +185,12 @@ public class Database {
 		} catch(SQLException e) {
 			conn.rollback();
 			e.printStackTrace();
-			return { 
-				"status": "error" 
-			  };
+			return "{\"status\": \"error\"}";
 			  
 		} finally {
 			conn.setAutoCommit(true);
 		}
-		return { 
-			"status": "ok" 
-		  };
+		return "{\"status\": \"ok\"}";
 	}
 
 	/**
@@ -205,35 +199,92 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private String defaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
+	private static String getDefaultValuesIngredientInCookie(Request req, Response res) throws SQLException {
 
-		String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
+		String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie(Quantity, Unit, IngredientName, Name) VALUES (?,?,?,?)";
+
+		
+		Map<String, Map<String, Map<Integer, String>>> recipes = new HashMap<>();
+		recipes.put("Almond delight", Map.of(
+				"Butter", Map.of(400, "g"),
+				"Chopped almonds", Map.of(279, "g"),
+				"Cinnamon", Map.of(10, "g"),
+				"Flour", Map.of(400, "g"),
+				"Sugar", Map.of(270, "g")
+		));
+		recipes.put("Amneris", Map.of(
+				"Butter", Map.of(250, "g"),
+				"Eggs", Map.of(250, "g"),
+				"Marzipan", Map.of(750, "g"),
+				"Potato starch", Map.of(25, "g"),
+				"Wheat flour", Map.of(25, "g")
+		));
+		recipes.put("Berliner", Map.of(
+				"Butter", Map.of(250, "g"),
+				"Chocolate", Map.of(50, "g"),
+				"Eggs", Map.of(50, "g"),
+				"Flour", Map.of(350, "g"),
+				"Icing sugar", Map.of(100, "g"),
+				"Vanilla sugar", Map.of(5, "g")
+		));
+
+		recipes.put("Nut cookie", Map.of(
+    	"Bread crumbs", Map.of(125, "g"),
+    	"Chocolate", Map.of(50, "g"),
+   	    "Egg whites", Map.of(350, "ml"),
+    	"Fine-ground nuts", Map.of(750, "g"),
+    	"Ground, roasted nuts", Map.of(625, "g"),
+   	 	"Sugar", Map.of(375, "g")
+		));
+		recipes.put("Nut ring", Map.of(
+    	"Butter", Map.of(450, "g"),
+    	"Flour", Map.of(450, "g"),
+    	"Icing sugar", Map.of(190, "g"),
+    	"Roasted, chopped nuts", Map.of(225, "g")
+		));
+		recipes.put("Tango", Map.of(
+			"Butter", Map.of(200, "g"),
+			"Flour", Map.of(300, "g"),
+			"Sodium bicarbonate", Map.of(4, "g"),
+			"Sugar", Map.of(250, "g"),
+			"Vanilla", Map.of(2, "g")
+		));
 	   
 	   try(PreparedStatement ps = conn.prepareStatement(defaultValuesForIngredientInCookie)) {
 		   conn.setAutoCommit(false);
 
-		   for(Map.Entry<String, String> customers : customer.entrySet()) {
-			   ps.setString(1, customers.getKey());
-			   ps.setString(2, customers.getValue());
-			   ps.executeUpdate();
+		   for (Map.Entry<String, Map<String, Map<Integer, String>>> recipeEntry : recipes.entrySet()) {
+            String recipeName = recipeEntry.getKey();
+            Map<String, Map<Integer, String>> ingredients = recipeEntry.getValue();
 
-		   }
+            for (Map.Entry<String, Map<Integer, String>> ingredientEntry : ingredients.entrySet()) {
+                String ingredientName = ingredientEntry.getKey();
+                Map<Integer, String> unitAndQuantity = ingredientEntry.getValue();
+
+                for (Map.Entry<Integer, String> unitQuantityEntry : unitAndQuantity.entrySet()) {
+                    int quantity = unitQuantityEntry.getKey();
+                    String unit = unitQuantityEntry.getValue();
+
+                    stmt.setInt(1, quantity);
+                    stmt.setString(2, unit);
+                    stmt.setString(3, ingredientName);
+                    stmt.setString(4, recipeName);
+                    stmt.executeUpdate();
+                }
+            }
+        }
 
 		   conn.commit();
 
 	   } catch(SQLException e) {
 		   conn.rollback();
 		   e.printStackTrace();
-		   return { 
-			   "status": "error" 
-			 };
+		   return "{\"status\": \"error\"}";
 			 
 	   } finally {
 		   conn.setAutoCommit(true);
 	   }
-	   return { 
-		   "status": "ok" 
-		 };
+	   return "{\"status\": \"ok\"}";
    }
 
 	/**
@@ -242,26 +293,17 @@ public class Database {
 	 * @return
 	 * @throws SQLException
 	 */
-	private String defaultValuesCookie(Request req, Response res) throws SQLException {
+	private static String getDefaultValuesCookie(Request req, Response res) throws SQLException {
 
-		 //String defaultValuesForCustomer = "INSERT INTO Customer VALUES (?,?)";
-		 //String defaultValuesForOrderSpec = "";
-		 // String defaultValuesForOrder = "";
-		 //String defaultValuesForIngredientInCookie = "INSERT INTO IngredientInCookie VALUES (?,?,?)";
-		 //String defaultValuesForStorageUpdate = "";
-		 //String defaultValuesForPallet = "";
+		
 		 String defaultValuesForCookie = "INSERT INTO Cookie (Name) VALUES (?)";
-		 //String defaultValuesForStorageAmount = "";
-		 //String defaultValuesForPallet_Delivered = "";
-		 //String defaultValuesForIngredientName = "";
-
 
 		String[] cookie = "Almond delight", "Amneris", "Berliner", "Nut cookie", "Nut ring", "Tango";
 
 
 	   
-	   try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
-		conn.setAutoCommit(false);
+	     try(PreparedStatement ps = conn.prepareStatement(backToDefaultValues)) {
+		 conn.setAutoCommit(false);
 
 			for(String c : cookie) {
 				ps.setString(1, c);
@@ -269,20 +311,59 @@ public class Database {
 			}
 		   
 			conn.commit();
-	   } catch(SQLException e) {
+	 	  } catch(SQLException e) {
 			conn.rollback();
 		    e.printStackTrace();
-			return {
-				"status" : "error"
-			};
+			return "{\"status\": \"error\"}";
 		   
 	   } finally {
 		conn.setAutoCommit(true);
 	   }
-	   return { 
-		   "status": "ok" 
-		 };
+	   return "{\"status\": \"ok\"}"
    }
+
+   /**
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private static String getDefaultValuesStorage(Request req, Response res) throws SQLException {
+
+		String defaultValuesForStorage = "INSERT INTO Storage (IngredientName, StorageAmount) VALUES (?,?)";
+
+		String[] ingredients = ["Bread crumbs", "Butter", "Chocolate", "Chopped almonds", "Cinnamon",
+		   "Egg whites", "Eggs", "Fine-ground nuts", "Flour", "Ground, roasted nuts", "Icing sugar",
+		   "Marzipan", "Potato starch", "Roasted, chopped nuts", "Sodium bicarbonate", "Sugar",
+		   "Vanilla sugar", "Vanilla", "Wheat flour"];
+
+		   int amountInStock = 500000;
+
+	   try(PreparedStatement ps = conn.prepareStatement(defaultValuesForStorage)) {
+		   conn.setAutoCommit(false);
+
+		   
+	   	for (String ingredient : ingredients) {
+		 ps.setString(1, ingredient);
+	   	 ps.setInt(2, amountInStock);
+	  	 ps.executeUpdate();
+   }
+
+		   conn.commit();
+
+	   } catch(SQLException e) {
+		   conn.rollback();
+		   e.printStackTrace();
+		   return "{\"status\": \"error\"}";
+			 
+	   } finally {
+		   conn.setAutoCommit(true);
+	   }
+	   return "{\"status\": \"ok\"}";
+   }
+
+
+   
 
 	public String createPallet(Request req, Response res) {
 		return "{}";
