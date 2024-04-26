@@ -123,25 +123,25 @@ INSERT INTO cookies (name) VALUES
 -- Populate the storages table
 INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
 VALUES 
-    ('Butter', 5000, 'g'),
-    ('Chopped almonds', 5000, 'g'),
-    ('Cinnamon', 5000, 'g'),
-    ('Flour', 5000, 'g'),
-    ('Sugar', 5000, 'g'),
-    ('Eggs', 5000, 'g'),
-    ('Marzipan', 5000, 'g'),
-    ('Potato starch', 5000, 'g'),
-    ('Wheat flour', 5000, 'g'),
-    ('Chocolate', 5000, 'g'),
-    ('Icing sugar', 5000, 'g'),
-    ('Vanilla sugar', 5000, 'g'),
-    ('Bread crumbs', 5000, 'g'),
-    ('Egg whites', 5000, 'ml'),
-    ('Fine-ground nuts', 5000, 'g'),
-    ('Ground, roasted nuts', 5000, 'g'),
-    ('Roasted, chopped nuts', 5000, 'g'),
-    ('Sodium bicarbonate', 5000, 'g'),
-    ('Vanilla', 5000, 'g');
+    ('Butter', 50000, 'g'),
+    ('Chopped almonds', 50000, 'g'),
+    ('Cinnamon', 50000, 'g'),
+    ('Flour', 50000, 'g'),
+    ('Sugar', 50000, 'g'),
+    ('Eggs', 50000, 'g'),
+    ('Marzipan', 50000, 'g'),
+    ('Potato starch', 50000, 'g'),
+    ('Wheat flour', 50000, 'g'),
+    ('Chocolate', 50000, 'g'),
+    ('Icing sugar', 50000, 'g'),
+    ('Vanilla sugar', 50000, 'g'),
+    ('Bread crumbs', 50000, 'g'),
+    ('Egg whites', 50000, 'ml'),
+    ('Fine-ground nuts', 50000, 'g'),
+    ('Ground, roasted nuts', 50000, 'g'),
+    ('Roasted, chopped nuts', 50000, 'g'),
+    ('Sodium bicarbonate', 50000, 'g'),
+    ('Vanilla', 50000, 'g');
 
 
 
