@@ -1,56 +1,56 @@
-<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><element><id>UMLClass</id><coordinates><x>24</x><y>392</y><w>168</w><h>40</h></coordinates><panel_attributes>Cookie
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><element><id>UMLClass</id><coordinates><x>104</x><y>336</y><w>168</w><h>40</h></coordinates><panel_attributes>Cookie
 --
-_name_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>232</x><y>288</y><w>104</w><h>64</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+_name_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>312</x><y>232</y><w>104</w><h>64</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
 IngredientInCookie
 --
 quantity
-unit</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>584</x><y>288</y><w>80</w><h>64</h></coordinates><panel_attributes>StorageUpdate
+unit</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>664</x><y>232</y><w>80</w><h>64</h></coordinates><panel_attributes>StorageUpdate
 --
 _id_
 updateAmount
-updateTime</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>416</x><y>288</y><w>88</w><h>64</h></coordinates><panel_attributes>Storage
+updateTime</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>496</x><y>232</y><w>88</w><h>64</h></coordinates><panel_attributes>Storage
 --
 _IngredientName_
 storageAmount
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>200</x><y>472</y><w>88</w><h>72</h></coordinates><panel_attributes>Pallet
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>280</x><y>416</y><w>88</w><h>72</h></coordinates><panel_attributes>Pallet
 --
 _pallet_id_
 productionDate
 blocked
-location</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>536</x><y>488</y><w>80</w><h>40</h></coordinates><panel_attributes>Order
+location</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>616</x><y>432</y><w>80</w><h>40</h></coordinates><panel_attributes>Order
 --
-_order_id_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>704</x><y>472</y><w>80</w><h>64</h></coordinates><panel_attributes>Customer
+_order_id_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>784</x><y>416</y><w>80</w><h>64</h></coordinates><panel_attributes>Customer
 --
 _customer_id_
 name
-address</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>96</x><y>424</y><w>120</w><h>112</h></coordinates><panel_attributes>lt=-
+address</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>176</x><y>368</y><w>120</w><h>112</h></coordinates><panel_attributes>lt=-
 m1=1
 m2=0..n
-Put in </panel_attributes><additional_attributes>20;10;20;110;130;110</additional_attributes></element><element><id>Relation</id><coordinates><x>104</x><y>288</y><w>144</w><h>120</h></coordinates><panel_attributes>lt=-
+Put in </panel_attributes><additional_attributes>20;10;20;110;130;110</additional_attributes></element><element><id>Relation</id><coordinates><x>184</x><y>232</y><w>144</w><h>120</h></coordinates><panel_attributes>lt=-
 m1=1
 m2=0..n
-Contains </panel_attributes><additional_attributes>10;130;10;20;160;20</additional_attributes></element><element><id>Relation</id><coordinates><x>328</x><y>288</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
+Contains </panel_attributes><additional_attributes>10;130;10;20;160;20</additional_attributes></element><element><id>Relation</id><coordinates><x>408</x><y>232</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=0..n
 m2=1
-Stores </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>496</x><y>288</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
+Stores </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>576</x><y>232</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=1
 m2=0..n
-has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>608</x><y>496</y><w>112</w><h>40</h></coordinates><panel_attributes>lt=-
+has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>688</x><y>440</y><w>112</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=0..n
 m2=1
- Requests </panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>328</x><y>432</y><w>80</w><h>48</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+ Requests </panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>408</x><y>376</y><w>80</w><h>48</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
 orderSpec
 --
-amount</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>184</x><y>392</y><w>400</w><h>112</h></coordinates><panel_attributes>lt=-
+amount</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>264</x><y>336</y><w>400</w><h>112</h></coordinates><panel_attributes>lt=-
 m1=1...*
 m2=0..*
-Orders</panel_attributes><additional_attributes>10;20;460;20;460;120</additional_attributes></element><element><id>UMLClass</id><coordinates><x>376</x><y>496</y><w>80</w><h>48</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
+Orders</panel_attributes><additional_attributes>10;20;460;20;460;120</additional_attributes></element><element><id>UMLClass</id><coordinates><x>456</x><y>440</y><w>80</w><h>48</h></coordinates><panel_attributes>&lt;&lt;weak&gt;&gt;
 palletDelivered
 --
-deliveredDate</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>448</x><y>504</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
+deliveredDate</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>528</x><y>448</y><w>104</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=1...*
 m2=1
- Has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>400</y><w>24</w><h>48</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>280</x><y>496</y><w>112</w><h>40</h></coordinates><panel_attributes>lt=-
+ Has </panel_attributes><additional_attributes>10;20;110;20</additional_attributes></element><element><id>Relation</id><coordinates><x>440</x><y>344</y><w>24</w><h>48</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>440</y><w>112</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=1
 m2=1
  has 
