@@ -206,10 +206,10 @@ public class Database {
 			conn.setAutoCommit(false);
 			resetAll.executeUpdate(disableForeignKeyChecks);
 			resetAll.executeUpdate(clearTables);
-			getDefaultValuesCookie(req, res);
-			getDefaultValuesCustomer(req, res);
-			getDefaultValuesIngredientInCookie(req, res);
-			getDefaultValuesStorage(req, res);
+			//getDefaultValuesCookie(req, res);
+			//getDefaultValuesCustomer(req, res);
+			//getDefaultValuesIngredientInCookie(req, res);
+			//getDefaultValuesStorage(req, res);
 
 			resetAll.executeUpdate(enableForeignKeyChecks);
 			conn.commit();
@@ -249,6 +249,8 @@ public class Database {
 		
 		try(PreparedStatement ps = conn.prepareStatement(defaultValuesForCustomer)) {
 			conn.setAutoCommit(false);
+
+			StringBuilder sb = new StringBuilder();
 
 			for(Map.Entry<String, String> customers : customer.entrySet()) {
 				ps.setString(1, customers.getKey());
