@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.io.FileNotFoundException;
 
 import spark.Request;
@@ -66,21 +67,29 @@ public class Database {
 			return json;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return "{}";
 		}
-		return "{}";
+		
 	}
 
 	public String getRawMaterials(Request req, Response res) {
-		String selectRawMaterials = "SELECT *\n" + "FROM storages\n" + "Order by ingredient_name;";
+		String selectRawMaterials = 
+    "SELECT ingredient_name AS name, " +
+    "storage_amount AS amount, " +
+    "storage_unit AS unit " +
+    "FROM storages " +
+    "ORDER BY name;";
+
 		try (
 				PreparedStatement ps = conn.prepareStatement(selectRawMaterials);) {
 			ResultSet resultSet = ps.executeQuery();
-			String json = Jsonizer.toJson(resultSet, "customers");
+			String json = Jsonizer.toJson(resultSet, "raw-materials");
 			return json;
 		} catch (SQLException e) {
+			// Log error and return an error message or empty JSON
 			e.printStackTrace();
+			return "{\"error\": \"" + e.getMessage() + "\"}";
 		}
-		return "{}";
 	}
 
 	public String getCookies(Request req, Response res) {
@@ -200,8 +209,51 @@ public class Database {
 		+ "TRUNCATE TABLE orders;"
 		+ "TRUNCATE TABLE orderSpec;";
 
+<<<<<<< HEAD
 		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
 ;
+=======
+		StringBuilder stringBuilder = new StringBuilder();
+
+		try {
+			File file = new File("krusty-skeleton/src/main/resources/initial-data.sql");
+
+			// Create a Scanner to read from the file
+			Scanner scanner = new Scanner(file, StandardCharsets.UTF_8.name());
+
+			// Read the contents of the file line by line and append to the StringBuilder
+			while (scanner.hasNextLine()) {
+				stringBuilder.append(scanner.nextLine()).append("\n");
+			}
+
+			// Close the Scanner
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found: " + e.getMessage());
+		}
+
+		// Convert the StringBuilder to a string
+		String fileContent = stringBuilder.toString();
+
+		// Split the file content into individual SQL statements
+		String[] sqlStatements = fileContent.split(";");
+
+		try {
+			Statement statement = conn.createStatement();
+			conn.setAutoCommit(false);
+				statement.addBatch(disableForeignKeyChecks);
+				for (String tableName : tableNames) {
+					statement.addBatch("TRUNCATE TABLE " + tableName + ";");
+				}
+				for (String sqlStatement : sqlStatements) {
+					// Trim whitespace and execute non-empty statements
+					sqlStatement = sqlStatement.trim();
+					if (!sqlStatement.isEmpty()) {
+						statement.addBatch(sqlStatement + ";");
+						System.out.println(sqlStatement);
+					}
+				}
+>>>>>>> cd297e7c4ca0ccb740d5dab7cb38b704fbe4f542
 			
 			conn.setAutoCommit(false);
 			resetAll.executeUpdate(disableForeignKeyChecks);
@@ -483,7 +535,7 @@ public class Database {
 									// Deduct ingredients from storages
 									while (ingredientsResult.next()) {
 										String ingredientName = ingredientsResult.getString("ingredient_name");
-										int quantity = ingredientsResult.getInt("quantity");
+										int quantity = ingredientsResult.getInt("quantity")*54;
 										updateStoragesStmt.setInt(1, quantity);
 										updateStoragesStmt.setString(2, ingredientName);
 										updateStoragesStmt.addBatch();
