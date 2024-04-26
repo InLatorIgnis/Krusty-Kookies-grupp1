@@ -71,7 +71,7 @@ public class Database {
 			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
 		) {
 			ResultSet resultSet = ps.executeQuery();
-			String json = Jsonizer.toJson(resultSet, "customers");
+			String json = Jsonizer.toJson(resultSet, "raw materials");
 			return json;
 		} catch (SQLException e) {
 			e.printStackTrace();
