@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.io.FileNotFoundException;
 
 import spark.Request;
@@ -64,21 +65,29 @@ public class Database {
 			return json;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return "{}";
 		}
-		return "{}";
+		
 	}
 
 	public String getRawMaterials(Request req, Response res) {
-		String selectRawMaterials = "SELECT *\n" + "FROM storages\n" + "Order by ingredient_name;";
+		String selectRawMaterials = 
+    "SELECT ingredient_name AS name, " +
+    "storage_amount AS amount, " +
+    "storage_unit AS unit " +
+    "FROM storages " +
+    "ORDER BY name;";
+
 		try (
 				PreparedStatement ps = conn.prepareStatement(selectRawMaterials);) {
 			ResultSet resultSet = ps.executeQuery();
-			String json = Jsonizer.toJson(resultSet, "customers");
+			String json = Jsonizer.toJson(resultSet, "raw-materials");
 			return json;
 		} catch (SQLException e) {
+			// Log error and return an error message or empty JSON
 			e.printStackTrace();
+			return "{\"error\": \"" + e.getMessage() + "\"}";
 		}
-		return "{}";
 	}
 
 	public String getCookies(Request req, Response res) {
@@ -198,7 +207,7 @@ public class Database {
 			File file = new File("krusty-skeleton/src/main/resources/initial-data.sql");
 
 			// Create a Scanner to read from the file
-			Scanner scanner = new Scanner(file);
+			Scanner scanner = new Scanner(file, StandardCharsets.UTF_8.name());
 
 			// Read the contents of the file line by line and append to the StringBuilder
 			while (scanner.hasNextLine()) {
@@ -289,7 +298,7 @@ public class Database {
 									// Deduct ingredients from storages
 									while (ingredientsResult.next()) {
 										String ingredientName = ingredientsResult.getString("ingredient_name");
-										int quantity = ingredientsResult.getInt("quantity");
+										int quantity = ingredientsResult.getInt("quantity")*54;
 										updateStoragesStmt.setInt(1, quantity);
 										updateStoragesStmt.setString(2, ingredientName);
 										updateStoragesStmt.addBatch();

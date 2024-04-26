@@ -16,25 +16,25 @@ INSERT INTO cookies (name) VALUES
 ('Tango');
 INSERT INTO storages (ingredient_name, storage_amount, storage_unit)
 VALUES 
-    ('Butter', 5000, 'g'),
-    ('Chopped almonds', 5000, 'g'),
-    ('Cinnamon', 5000, 'g'),
-    ('Flour', 5000, 'g'),
-    ('Sugar', 5000, 'g'),
-    ('Eggs', 5000, 'g'),
-    ('Marzipan', 5000, 'g'),
-    ('Potato starch', 5000, 'g'),
-    ('Wheat flour', 5000, 'g'),
-    ('Chocolate', 5000, 'g'),
-    ('Icing sugar', 5000, 'g'),
-    ('Vanilla sugar', 5000, 'g'),
-    ('Bread crumbs', 5000, 'g'),
-    ('Egg whites', 5000, 'ml'),
-    ('Fine-ground nuts', 5000, 'g'),
-    ('Ground, roasted nuts', 5000, 'g'),
-    ('Roasted, chopped nuts', 5000, 'g'),
-    ('Sodium bicarbonate', 5000, 'g'),
-    ('Vanilla', 5000, 'g');
+    ('Butter', 500000, 'g'),
+    ('Chopped almonds', 500000, 'g'),
+    ('Cinnamon', 500000, 'g'),
+    ('Flour', 500000, 'g'),
+    ('Sugar', 500000, 'g'),
+    ('Eggs', 500000, 'g'),
+    ('Marzipan', 500000, 'g'),
+    ('Potato starch', 500000, 'g'),
+    ('Wheat flour', 500000, 'g'),
+    ('Chocolate', 500000, 'g'),
+    ('Icing sugar', 500000, 'g'),
+    ('Vanilla sugar', 500000, 'g'),
+    ('Bread crumbs', 500000, 'g'),
+    ('Egg whites', 500000, 'ml'),
+    ('Fine-ground nuts', 500000, 'g'),
+    ('Ground, roasted nuts', 500000, 'g'),
+    ('Roasted, chopped nuts', 500000, 'g'),
+    ('Sodium bicarbonate', 500000, 'g'),
+    ('Vanilla', 500000, 'g');
 INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) VALUES
 (400, 'g', 'Butter', 'Almond delight'),
 (279, 'g', 'Chopped almonds', 'Almond delight'),
@@ -72,9 +72,3 @@ INSERT INTO ingredientInCookies (Quantity, Unit, ingredient_name, cookie_name) V
 (4, 'g', 'Sodium bicarbonate', 'Tango'),
 (250, 'g', 'Sugar', 'Tango'),
 (2, 'g', 'Vanilla', 'Tango');
-INSERT INTO pallets
-(`productionDate`, `blocked`, `location`, `name`) VALUES
-(CURDATE(), 0, '07', 'Almond delight');
-INSERT INTO pallets
-(`productionDate`, `blocked`, `location`, `name`) VALUES
-(CURDATE()-1, 1, '42', 'Tango');
