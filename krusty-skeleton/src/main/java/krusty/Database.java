@@ -117,25 +117,26 @@ public class Database {
 	 */
 	public String reset(Request req, Response res) throws SQLException {
 
-		String clearTables = "TRUNCATE TABLE Storage"
-		+ "TRUNCATE TABLE IngredientName"
+		String clearTables = 
+		"TRUNCATE TABLE Storages"
+		+ "TRUNCATE TABLE Cookies"
+		+ "TRUNCATE TABLE Pallets"
+		+ "TRUNCATE TABLE Customers"
+		+ "TRUNCATE TABLE StorageUpdates"
+		+ "TRUNCATE TABLE IngredientInCookies"
+		+ "TRUNCATE TABLE Orders"
 		+ "TRUNCATE TABLE Pallet_Delivered"
-		+ "TRUNCATE TABLE StorageAmount"
-		+ "TRUNCATE TABLE Cookie"
-		+ "TRUNCATE TABLE Pallet"
-		+ "TRUNCATE TABLE Customer"
-		+ "TRUNCATE TABLE StorageUpdate"
-		+ "TRUNCATE TABLE IngredientInCookie"
-		+ "TRUNCATE TABLE Order"
 		+ "TRUNCATE TABLE OrderSpec";
-
-		try(PreparedStatement resetAll = conn.prepareStatement(clearTables)) {
+		
+		try(PreparedStatement resetAll = conn.prepareStatement("set FOREIGN_KEY_CHECKS = 0;")) {
 			conn.setAutoCommit(false);
-			resetAll.executeQuery(clearTables);
-			getDefaultValuesCookie(req, res);
-			getDefaultValuesCustomer(req, res);
-			getDefaultValuesIngredientInCookie(req, res);
-			getDefaultValuesStorage(req, res);
+			resetAll.addBatch(clearTables);
+			resetAll.addBatch("set FOREIGN_KEY_CHECKS = 1;");
+			resetAll.executeUpdate();
+			//getDefaultValuesCookie(req, res);
+			//getDefaultValuesCustomer(req, res);
+			//getDefaultValuesIngredientInCookie(req, res);
+			//getDefaultValuesStorage(req, res);
 
 			conn.commit();
 
