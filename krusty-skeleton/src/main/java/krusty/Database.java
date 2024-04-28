@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
@@ -227,7 +228,7 @@ public class Database {
 		String[] sqlStatements = fileContent.split(";");
 
 		try {
-			Statement statement = conn.createStatement();
+			PreparedStatement statement = conn.prepareStatement(disableForeignKeyChecks);
 			conn.setAutoCommit(false);
 				statement.addBatch(disableForeignKeyChecks);
 				for (String tableName : tableNames) {
