@@ -190,30 +190,33 @@ public class Database {
 
 		String disableForeignKeyChecks = "SET FOREIGN_KEY_CHECKS=0;";
 		String enableForeignKeyChecks = "SET FOREIGN_KEY_CHECKS=1;";
-		String clearTables = "TRUNCATE TABLE storages; "
-		+ "TRUNCATE TABLE pallet_Delivered; "
-		+ "TRUNCATE TABLE cookies; "
-		+ "TRUNCATE TABLE pallets; "
-		+ "TRUNCATE TABLE customers; "
-		+ "TRUNCATE TABLE storageUpdates; "
-		+ "TRUNCATE TABLE ingredientInCookies; "
-		+ "TRUNCATE TABLE orders; "
-		+ "TRUNCATE TABLE orderSpec;" ;
+		String clearTables = "TRUNCATE TABLE pallet_Delivered; \n"
+		+ "TRUNCATE TABLE cookies; \n"
+		+ "TRUNCATE TABLE pallets; \n"
+		+ "TRUNCATE TABLE storages; \n"
+		+ "TRUNCATE TABLE customers; \n"
+		+ "TRUNCATE TABLE storageUpdates; \n"
+		+ "TRUNCATE TABLE ingredientInCookies; \n"
+		+ "TRUNCATE TABLE orders; \n"
+		+ "TRUNCATE TABLE orderSpec; \n";
 
-		try(Statement resetAll = conn.prepareStatement(disableForeignKeyChecks)) {
-;
-			
+
+		try(Statement stmt = conn.createStatement()) {
+			System.out.println(clearTables);
 			conn.setAutoCommit(false);
-			resetAll.addBatch(clearTables);
+			stmt.addBatch(disableForeignKeyChecks);
+			
+			stmt.addBatch(clearTables);
 			//getDefaultValuesCookie(req, res);
 			//getDefaultValuesCustomer(req, res);
 			//getDefaultValuesIngredientInCookie(req, res);
 			//getDefaultValuesStorage(req, res);
 
-			resetAll.addBatch(enableForeignKeyChecks);
-			resetAll.executeBatch();
+			stmt.addBatch(enableForeignKeyChecks);
+			stmt.executeBatch();
 			
 			conn.commit();
+			System.out.println("clearTables");
 
 		} catch(SQLException e) {
 			conn.rollback();
