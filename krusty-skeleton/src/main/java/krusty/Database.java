@@ -66,7 +66,7 @@ public class Database {
 			return json;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return "{}";
+			return "{\"customers\":[],\"error\":\"Database error occurred.\"}";
 		}
 		
 	}
@@ -87,7 +87,7 @@ public class Database {
 		} catch (SQLException e) {
 			// Log error and return an error message or empty JSON
 			e.printStackTrace();
-			return "{\"error\": \"" + e.getMessage() + "\"}";
+			return "{\"\"raw-materials\":[],\"error\":\"Database error occurred.\"}";
 		}
 	}
 
