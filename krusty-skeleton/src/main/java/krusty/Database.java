@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import java.nio.charset.StandardCharsets;
 
 import static krusty.Jsonizer.toJson;
 
@@ -53,34 +53,37 @@ public class Database {
 
 	// TODO: Implement and change output in all methods below!
 	public String getCustomers(Request req, Response res) {
-		String selectCustomers = "select name, address from Customer";
+		String selectCustomers = "select name, address\n" + "FROM customers;";
 		try (
-			PreparedStatement ps = conn.prepareStatement(selectCustomers);
-		) {
+				PreparedStatement ps = conn.prepareStatement(selectCustomers);) {
 			ResultSet resultSet = ps.executeQuery();
 			String json = Jsonizer.toJson(resultSet, "customers");
 			return json;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return "{\"customers\":[],\"error\":\"Database error occurred.\"}";
 		}
-		return "{}";
+		
 	}
 
 	public String getRawMaterials(Request req, Response res) {
 		String selectRawMaterials = 
-			"SELECT s.IngredientName as name, s.StorageAmount as amount, i.Unit as unit " +
-			"FROM Storage s " +
-			"JOIN IngredientInCookie i ON s.IngredientName = i.IngredientName";
+    "SELECT ingredient_name AS name, " +
+    "storage_amount AS amount, " +
+    "storage_unit AS unit " +
+    "FROM storages " +
+    "ORDER BY name;";
+
 		try (
-			PreparedStatement ps = conn.prepareStatement(selectRawMaterials);
-		) {
+				PreparedStatement ps = conn.prepareStatement(selectRawMaterials);) {
 			ResultSet resultSet = ps.executeQuery();
-			String json = Jsonizer.toJson(resultSet, "raw materials");
+			String json = Jsonizer.toJson(resultSet, "raw-materials");
 			return json;
 		} catch (SQLException e) {
+			// Log error and return an error message or empty JSON
 			e.printStackTrace();
+			return "{\"\"raw-materials\":[],\"error\":\"Database error occurred.\"}";
 		}
-		return "{}";
 	}
 
 	public String getCookies(Request req, Response res) {
@@ -88,25 +91,31 @@ public class Database {
 
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
-			String result = krusty.Jsonizer.toJson(rs, "cookies");
+			String result = Jsonizer.toJson(rs, "cookies");
 			return result;
-		} catch (SQLException e) {
+		}
+
+		catch (SQLException e) {
 			e.printStackTrace();
 			return "{\"cookies\":[],\"error\":\"Database error occurred.\"}";
 		}
+
 	}
 
 	public String getRecipes(Request req, Response res) {
-		String query = "SELECT *\n" + "FROM ingredientInCookies\n" + "ORDER BY cookie_name";
-		
+		String query = "SELECT *\n" + "FROM ingredientInCookies\n" + "Order by cookie_name;";
+
 		try (PreparedStatement ps = conn.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
-			String result = krusty.Jsonizer.toJson(rs, "recipes");
+			String result = Jsonizer.toJson(rs, "recipes");
 			return result;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "{\"recipes\":[],\"error\":\"Database error occurred\"}";
 		}
+
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "{\"recipes\":[],\"error\":\"Database error occurred.\"}";
+		}
+
 	}
 
 	public String getPallets(Request req, Response res) {
@@ -207,8 +216,8 @@ public String reset(Request req, Response res) throws SQLException, FileNotFound
         }
 
         // Read SQL commands from file
-        File sqlFile = new File("krusty-skeleton/src/main/resources/initial-data.sql");
-        try (Scanner scanner = new Scanner(sqlFile)) {
+        File sqlFile = new File("krusty-skeleton\\src\\main\\resources\\public\\initial-data.sql");
+        try (Scanner scanner = new Scanner(sqlFile,StandardCharsets.UTF_8.name())) {
             StringBuilder sql = new StringBuilder();
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
