@@ -180,7 +180,75 @@ public String reset(Request req, Response res) throws SQLException, FileNotFound
 }
 
 
-	public String createPallet(Request req, Response res) {
-		return "{}";
+public String createPallet(Request req, Response res) {
+	String cookieName = req.queryParams("cookie");
+	if (cookieName == null || cookieName.isEmpty()) {
+		res.status(400); // Bad Request
+		return "{\"status\":\"error\",\"message\":\"Missing or empty 'cookie' parameter\"}";
 	}
+
+	String checkCookieSql = "SELECT COUNT(*) FROM cookies WHERE name = ?";
+	String insertPalletSql = "INSERT INTO pallets (productionDate, blocked, location, name) VALUES (NOW(), false, ?, ?)";
+	String selectIngredientsSql = "SELECT ingredient_name, quantity FROM ingredientInCookies WHERE cookie_name = ?";
+	String updateStoragesSql = "UPDATE storages SET storage_amount = storage_amount - ? WHERE ingredient_name = ?";
+
+	try (
+			PreparedStatement checkCookieStmt = conn.prepareStatement(checkCookieSql);
+			PreparedStatement insertPalletStmt = conn.prepareStatement(insertPalletSql,
+					Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement selectIngredientsStmt = conn.prepareStatement(selectIngredientsSql);
+			PreparedStatement updateStoragesStmt = conn.prepareStatement(updateStoragesSql)) {
+
+		conn.setAutoCommit(false); // Start transaction
+
+		// Check if the specified cookie exists
+		checkCookieStmt.setString(1, cookieName);
+		try (ResultSet cookieResult = checkCookieStmt.executeQuery()) {
+			if (cookieResult.next() && cookieResult.getInt(1) > 0) {
+				// Get ingredients for the specified cookie
+				selectIngredientsStmt.setString(1, cookieName);
+				try (ResultSet ingredientsResult = selectIngredientsStmt.executeQuery()) {
+					// Create the pallet
+					int randomLocation = (int) (Math.random() * 99) + 1; // Random location between 1 and 99
+					insertPalletStmt.setInt(1, randomLocation);
+					insertPalletStmt.setString(2, cookieName);
+					int affectedRows = insertPalletStmt.executeUpdate();
+					if (affectedRows > 0) {
+						// Retrieve and process generated pallet ID
+						try (ResultSet generatedKeys = insertPalletStmt.getGeneratedKeys()) {
+							if (generatedKeys.next()) {
+								long palletId = generatedKeys.getLong(1);
+
+								// Deduct ingredients from storages
+								while (ingredientsResult.next()) {
+									String ingredientName = ingredientsResult.getString("ingredient_name");
+									int quantity = ingredientsResult.getInt("quantity")*54;
+									updateStoragesStmt.setInt(1, quantity);
+									updateStoragesStmt.setString(2, ingredientName);
+									updateStoragesStmt.addBatch();
+								}
+
+								// Execute batch update for storages
+								updateStoragesStmt.executeBatch();
+
+								conn.commit(); // Commit transaction
+								res.status(201); // Created
+								return String.format("{\"status\":\"ok\",\"id\":%d}", palletId);
+							}
+						}
+					}
+				}
+			}
+		}
+		// If execution reaches here, handle errors
+		conn.rollback(); // Rollback transaction
+		res.status(500); // Internal Server Error
+		return "{\"status\":\"error\",\"message\":\"Failed to create pallet\"}";
+	} catch (SQLException e) {
+		// Log the exception
+		e.printStackTrace();
+		res.status(500); // Internal Server Error
+		return "{\"status\":\"error\",\"message\":\"An unexpected error occurred\"}";
+	}
+}
 }
