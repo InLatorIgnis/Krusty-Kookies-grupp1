@@ -110,7 +110,68 @@ public class Database {
 	}
 
 	public String getPallets(Request req, Response res) {
-		return "{\"pallets\":[]}";
+		// Initial SQL query with WHERE 1=1
+		String sql = "SELECT p.Pallet_id AS id, p.name AS cookie, p.productionDate AS production_date, " +
+				"IFNULL(c.name, 'null') AS customer, IF(p.blocked, 'yes', 'no') AS blocked " +
+				"FROM pallets p " +
+				"LEFT JOIN pallet_Delivered pd ON p.Pallet_id = pd.Pallet_id " +
+				"LEFT JOIN orders o ON pd.Order_id = o.Order_id " +
+				"LEFT JOIN customers c ON o.customer_id = c.customer_id " +
+				"WHERE 1=1 "; // This condition always evaluates to true
+
+		// ArrayList to hold parameters for prepared statement
+		ArrayList<String> values = new ArrayList<>();
+
+		// Handling the 'from' query parameter (date produced on or after)
+		String fromParam = req.queryParams("from");
+		if (fromParam != null) {
+			sql += " AND p.productionDate >= ?";
+			values.add(fromParam);
+		}
+
+		// Handling the 'to' query parameter (date produced on or before)
+		String toParam = req.queryParams("to");
+		if (toParam != null) {
+			sql += " AND p.productionDate <= ?";
+			values.add(toParam);
+		}
+
+		// Handling the 'cookie' query parameter (filter by cookie name)
+		String cookieParam = req.queryParams("cookie");
+		if (cookieParam != null) {
+			sql += " AND p.name = ?";
+			values.add(cookieParam);
+		}
+
+		// Handling 'blocked' parameter (filter by blocked status)
+		String blockedParam = req.queryParams("blocked");
+		if (blockedParam != null) {
+			String blockedValue = blockedParam.equalsIgnoreCase("yes") ? "1" : "0";
+			sql += " AND p.blocked = ?";
+			values.add(blockedValue);
+		}
+
+		// Add ORDER BY clause
+		sql += " ORDER BY p.productionDate DESC;";
+
+		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+			// Set the values for the prepared statement
+			for (int i = 0; i < values.size(); i++) {
+				stmt.setString(i + 1, values.get(i));
+			}
+
+			// Execute the query and handle the results
+			try (ResultSet rs = stmt.executeQuery()) {
+				// Convert ResultSet to JSON
+				String json = Jsonizer.toJson(rs, "pallets");
+				return json;
+			}
+
+		} catch (SQLException e) {
+			// Log error and return an error message or empty JSON
+			e.printStackTrace();
+			return "{\"pallets\":[],\"error\":\"Database error occurred.\"}";
+		}
 	}
 
 	/**
